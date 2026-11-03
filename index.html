@@ -86,5 +86,118 @@
   .input-area input { margin: 0; text-align: left; flex: 1; }
   .btn-send {
     width: 50px; background: #f43f5e; border: none; border-radius: 12px;
-    color: white; font-
- 
+    color: white; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Screen 1: Password Login -->
+  <div id="login-screen" class="screen">
+    <h1>HALO AY 🌸</h1>
+    <p>Masukkan tanggal lahir kamu untuk membuka ruang spesial ini (DDMMYYYY).</p>
+    <input type="password" id="passInput" placeholder="Password (Contoh: 26092011)">
+    <button class="btn" onclick="checkPassword()">MASUK</button>
+  </div>
+
+  <!-- Screen 2: Main Chat App -->
+  <div id="app-screen" class="screen">
+    <div class="chat-container">
+      <div class="header-card">
+        <div class="mascot-avatar">🐱</div>
+        <div class="mascot-info">
+          <h3>Asisten Pribadi Ay</h3>
+          <p id="schedule-status">Menyesuaikan jadwal X BUS 1...</p>
+        </div>
+      </div>
+
+      <div class="chat-box" id="chatBox"></div>
+
+      <div class="input-area">
+        <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
+        <button class="btn-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import { GoogleGenAI } from "@google/genai";
+
+  // Masukkan API Key berformat AQ kamu di sini
+  const apiKey = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw";
+  const ai = new GoogleGenAI({ apiKey: apiKey });
+
+  const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
+  Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
+  PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
+  Sesuaikan obrolan dengan jadwal sekolahnya (Dasar-dasar Busana, Koding dan KA, Sejarah, dll.) dan ingatkan soal keselamatannya saat naik BRT. Jawab dengan ramah dan natural seperti sahabat/pacar yang peduli.`;
+
+  let chatSession;
+
+  window.checkPassword = function() {
+    const val = document.getElementById('passInput').value;
+    if (val === '26092011') {
+      document.getElementById('login-screen').style.display = 'none';
+      startApp();
+    } else {
+      alert('Password salah, Ay! Coba ingat tanggal lahirmu (26092011).');
+    }
+  }
+
+  async function startApp() {
+    document.getElementById('app-screen').style.display = 'flex';
+    
+    try {
+      // Inisialisasi chat dengan SDK resmi yang mendukung token AQ
+      chatSession = ai.chats.create({
+        model: 'gemini-2.5-flash',
+        config: {
+          systemInstruction: systemInstruction,
+        }
+      });
+      checkScheduleAndGreet();
+    } catch (err) {
+      appendMessage("Gagal menginisialisasi AI: " + err.message, 'ai');
+    }
+  }
+
+  async function checkScheduleAndGreet() {
+    const now = new Date();
+    const hour = now.getHours();
+
+    let greeting = "Good morning, Ay! Gimana mimpinya tadi malem? Semoga indah ya, atau malah mimpi buruk? Cerita yuk!";
+    if (hour >= 11 && hour < 15) greeting = "Halo Ay! Udah siang nih, gimana pelajarannya di SMKN 1 Kendal? Jangan lupa istirahat ya.";
+    else if (hour >= 15) greeting = "Yeay, waktunya pulang! Hati-hati di jalan ya Ay, jangan lupa naik BRT-nya dengan aman ya.";
+
+    document.getElementById('schedule-status').innerText = "SMKN 1 Kendal • Kelas X BUS 1";
+    appendMessage(greeting, 'ai');
+  }
+
+  function appendMessage(text, sender) {
+    const box = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = `message ${sender}`;
+    div.innerText = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text || !chatSession) return;
+
+    appendMessage(text, 'user');
+    input.value = '';
+
+    try {
+      const result = await chatSession.sendMessage({ message: text });
+      const reply = result.text;
+      appendMessage(reply, 'ai');
+    } catch (err) {
+      appendMessage("Error: " + err.message, 'ai');
+    }
+  }
+</script>
+</body>
+</html>
