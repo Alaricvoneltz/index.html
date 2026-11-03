@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cyber Tap Reflex</title>
+<title>Seblak & Kuliner Tap</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   body {
     font-family: 'Space Grotesk', sans-serif;
-    background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%);
+    background: radial-gradient(circle at center, #2e1065 0%, #09090b 100%);
     color: #fff;
     min-height: 100vh;
     display: flex;
@@ -23,21 +23,27 @@
   .game-card {
     width: 100%;
     max-width: 420px;
-    background: rgba(24, 24, 27, 0.85);
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(24, 24, 27, 0.9);
+    border: 1px solid rgba(244, 63, 94, 0.3);
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 30px rgba(244, 63, 94, 0.2);
     text-align: center;
     backdrop-filter: blur(10px);
   }
 
   h1 {
     font-size: 22px;
-    color: #a855f7;
-    text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
-    margin-bottom: 12px;
+    color: #f43f5e;
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+    margin-bottom: 4px;
     letter-spacing: 1px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #fda4af;
+    margin-bottom: 12px;
   }
 
   .stats-bar {
@@ -50,8 +56,8 @@
     border: 1px solid #27272a;
   }
 
-  .stat-box { font-size: 13px; color: #a1a1aa; }
-  .stat-val { font-size: 18px; font-weight: 700; color: #38bdf8; display: block; }
+  .stat-box { font-size: 12px; color: #a1a1aa; }
+  .stat-val { font-size: 18px; font-weight: 700; color: #fbbf24; display: block; }
 
   #game-board {
     width: 100%;
@@ -60,23 +66,30 @@
     border-radius: 14px;
     position: relative;
     overflow: hidden;
-    border: 2px dashed rgba(168, 85, 247, 0.3);
+    border: 2px dashed rgba(244, 63, 94, 0.4);
   }
 
   #target {
-    width: 55px;
-    height: 55px;
+    width: 65px;
+    height: 65px;
     border-radius: 50%;
-    background: radial-gradient(circle, #f43f5e 0%, #be123c 100%);
-    box-shadow: 0 0 20px #f43f5e;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid #f43f5e;
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.5);
     position: absolute;
     display: none;
     cursor: pointer;
     touch-action: manipulation;
+    font-size: 34px;
+    line-height: 60px;
+    text-align: center;
+    transition: transform 0.1s;
   }
 
+  #target:active { transform: scale(0.85); }
+
   .btn {
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, #f43f5e, #e11d48);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -86,7 +99,7 @@
     cursor: pointer;
     margin-top: 16px;
     width: 100%;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
     transition: 0.2s;
   }
 
@@ -95,22 +108,38 @@
   #overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(9, 9, 11, 0.85);
+    background: rgba(9, 9, 11, 0.88);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 14px;
+    padding: 10px;
   }
 
-  #overlay h2 { font-size: 20px; color: #38bdf8; margin-bottom: 6px; }
-  #overlay p { font-size: 13px; color: #a1a1aa; }
+  #overlay h2 { font-size: 20px; color: #fbbf24; margin-bottom: 6px; }
+  #overlay p { font-size: 13px; color: #fda4af; }
+
+  .food-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #fbbf24;
+    font-weight: bold;
+    background: rgba(0,0,0,0.6);
+    padding: 3px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
 </style>
 </head>
 <body>
 
 <div class="game-card">
-  <h1>⚡ CYBER REFLEX</h1>
+  <h1>🍲 SEBLAK & KULINER TAP</h1>
+  <div class="subtitle">Tangkap Makanan Pedas & Segar!</div>
   
   <div class="stats-bar">
     <div class="stat-box">Skor<span id="score" class="stat-val">0</span></div>
@@ -119,21 +148,33 @@
   </div>
 
   <div id="game-board">
-    <div id="target"></div>
+    <div id="target">🍲</div>
+    <div id="food-label" class="food-label" style="display:none;">Seblak Pedas</div>
     <div id="overlay">
-      <h2>SIAP MAIN?</h2>
-      <p>Tekan target secepat mungkin!</p>
+      <h2>SIAP BERBURU KULINER?</h2>
+      <p>Tap Seblak, Semangka & Jajanan Khas!</p>
     </div>
   </div>
 
-  <button class="btn" id="start-btn" onclick="startGame()">MULAI GAME</button>
+  <button class="btn" id="start-btn" onclick="startGame()">MULAI BERBURU</button>
 </div>
 
 <script>
+  // Daftar Makanan & Poinnya
+  const foods = [
+    { icon: '🍲', name: 'Seblak Pedas (+1)', pts: 1 },
+    { icon: '🍉', name: 'Semangka Segar (+1)', pts: 1 },
+    { icon: '🧋', name: 'Es Teh Manis (+1)', pts: 1 },
+    { icon: '🍡', name: 'Bakso Colok (+1)', pts: 1 },
+    { icon: '🍜', name: 'Mie Setan (+1)', pts: 1 },
+    { icon: '🌶️', name: 'Cabe Rawit BONUS (+3)', pts: 3 }
+  ];
+
   let score = 0;
   let timeLeft = 20;
   let gameTimer = null;
-  let highScore = localStorage.getItem('cyber_reflex_hs') || 0;
+  let currentFood = foods[0];
+  let highScore = localStorage.getItem('seblak_tap_hs') || 0;
   
   const target = document.getElementById('target');
   const board = document.getElementById('game-board');
@@ -142,21 +183,27 @@
   const hsEl = document.getElementById('highscore');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
+  const foodLabel = document.getElementById('food-label');
 
   hsEl.innerText = highScore;
 
   function moveTarget() {
-    const maxX = board.clientWidth - 60;
-    const maxY = board.clientHeight - 60;
+    const maxX = board.clientWidth - 70;
+    const maxY = board.clientHeight - 70;
     const randomX = Math.floor(Math.random() * maxX);
     const randomY = Math.floor(Math.random() * maxY);
     
+    // Pilih makanan acak
+    currentFood = foods[Math.floor(Math.random() * foods.length)];
+    target.innerText = currentFood.icon;
+    foodLabel.innerText = currentFood.name;
+
     target.style.left = randomX + 'px';
     target.style.top = randomY + 'px';
   }
 
   function hitTarget() {
-    score++;
+    score += currentFood.pts;
     scoreEl.innerText = score;
     moveTarget();
   }
@@ -175,6 +222,7 @@
     
     overlay.style.display = 'none';
     target.style.display = 'block';
+    foodLabel.style.display = 'block';
     startBtn.style.display = 'none';
     
     moveTarget();
@@ -193,17 +241,18 @@
   function endGame() {
     clearInterval(gameTimer);
     target.style.display = 'none';
+    foodLabel.style.display = 'none';
     overlay.style.display = 'flex';
     startBtn.style.display = 'block';
     startBtn.innerText = 'MAIN LAGI';
 
     if (score > highScore) {
       highScore = score;
-      localStorage.setItem('cyber_reflex_hs', highScore);
+      localStorage.setItem('seblak_tap_hs', highScore);
       hsEl.innerText = highScore;
-      overlay.innerHTML = `<h2>🎉 REKOR BARU!</h2><p>Skor Akhir Kamu: <b>${score}</b></p>`;
+      overlay.innerHTML = `<h2>🎉 JURAGAN KULINER!</h2><p>Rekor Baru! Skor: <b>${score}</b></p>`;
     } else {
-      overlay.innerHTML = `<h2>WAKTU HABIS!</h2><p>Skor Kamu: <b>${score}</b></p>`;
+      overlay.innerHTML = `<h2>WAKTU HABIS!</h2><p>Skor Kuliner Kamu: <b>${score}</b></p>`;
     }
   }
 </script>
