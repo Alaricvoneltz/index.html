@@ -116,8 +116,8 @@
   </div>
 
 <script>
-  // API Key sudah ditanam langsung di sini secara permanen
-  const GEMINI_API_KEY = AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw; 
+  // API Key yang benar dan terbungkus tanda petik dengan aman
+  const GEMINI_API_KEY = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw"; 
   let chatHistory = [];
 
   function checkPassword() {
@@ -168,7 +168,6 @@
 
     chatHistory.push({ role: "user", parts: [{ text: text }] });
 
-    // System Instructions khusus untuk Wafina (Ay)
     const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
     Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
     PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
@@ -185,12 +184,15 @@
       });
 
       const data = await response.json();
+      
       if (data.candidates && data.candidates[0].content) {
         const reply = data.candidates[0].content.parts[0].text;
         appendMessage(reply, 'ai');
         chatHistory.push({ role: "model", parts: [{ text: reply }] });
+      } else if (data.error) {
+        appendMessage(`Error dari Gemini: ${data.error.message}`, 'ai');
       } else {
-        appendMessage("Duh, koneksi AI-nya lagi ngadat nih Ay. Coba lagi ya!", 'ai');
+        appendMessage("Duh, respon AI-nya kosong nih Ay. Coba kirim ulang ya!", 'ai');
       }
     } catch (err) {
       appendMessage("Terjadi kesalahan jaringan, periksa koneksi internetmu ya Ay.", 'ai');
