@@ -136,3 +136,205 @@
   }
 </style>
 </head>
+<body>
+
+  <!-- Screen 1: Password Login -->
+  <div id="login-screen" class="screen">
+    <div class="login-card">
+      <h1>HALO AY 🌸</h1>
+      <p>Masukkan tanggal lahir kamu untuk membuka ruang spesial ini (DDMMYYYY).</p>
+      <input type="password" id="passInput" placeholder="Password (Contoh: 26092011)">
+      <button class="btn" onclick="checkPassword()">MASUK</button>
+    </div>
+  </div>
+
+  <!-- Screen 2: Main Chat App -->
+  <div id="app-screen" class="screen">
+    <div class="app-container">
+      
+      <!-- Header Info -->
+      <div class="header-card">
+        <div class="profile-box">
+          <div class="mascot-avatar" id="headerMascot">🐱</div>
+          <div class="mascot-info">
+            <h3>Wafina's Space</h3>
+            <p id="schedule-status">SMKN 1 Kendal • Kelas X BUS 1</p>
+          </div>
+        </div>
+        <div style="font-size: 11px; color: #fb7185; background: rgba(251,113,133,0.1); padding: 4px 8px; border-radius: 8px;">
+          By: Kiki
+        </div>
+      </div>
+
+      <!-- Mascot Interactive Stage & Drag Feeding Area -->
+      <div class="stage-card">
+        <div class="speech-bubble" id="speechBubble">Halo Ay! Lagi sibuk apa nih sama Kiki?</div>
+        
+        <div class="avatar-display-box" id="avatarBox" onclick="pokeMascot()">
+          🐱
+        </div>
+
+        <!-- Tray Makanan yang bisa di-drag ke avatar -->
+        <div class="food-tray" id="foodTray">
+          <div class="food-item" draggable="true" data-food="🍰" ontouchstart="" ondragstart="drag(event)">🍰</div>
+          <div class="food-item" draggable="true" data-food="🍓" ontouchstart="" ondragstart="drag(event)">🍓</div>
+          <div class="food-item" draggable="true" data-food="🧋" ontouchstart="" ondragstart="drag(event)">🧋</div>
+          <div class="food-item" draggable="true" data-food="🍜" ontouchstart="" ondragstart="drag(event)">🍜</div>
+        </div>
+      </div>
+
+      <!-- Chat Box -->
+      <div class="chat-box" id="chatBox"></div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
+        <button class="btn-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+
+    </div>
+  </div>
+
+<script type="module">
+  import { GoogleGenAI } from "@google/genai";
+
+  // Token AQ kamu yang terpasang
+  const apiKey = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw";
+  const ai = new GoogleGenAI({ apiKey: apiKey });
+
+  const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
+  Pencipta atau pembuat web ini adalah Riski Febriyanto, yang biasanya dipanggil oleh Ay dengan sebutan "Kiki" atau "Adek".
+  Dia adalah Wafina Septianingsih (lahir 26 September 2011), siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
+  PENTING: Ay tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
+  Jadwal pelajarannya meliputi Dasar-dasar Busana, Sejarah, Informatika/Koding, Matematika, Bahasa Inggris, IPAS, Agama, Seni Budaya, PJOK, dan P5.
+  Ingatkan soal keselamatannya saat naik BRT dan sapa dengan hangat layaknya sahabat/pasangan yang peduli.`;
+
+  let chatSession;
+
+  window.checkPassword = function() {
+    const val = document.getElementById('passInput').value;
+    if (val === '26092011') {
+      document.getElementById('login-screen').style.display = 'none';
+      startApp();
+    } else {
+      alert('Password salah, Ay! Coba ingat tanggal lahirmu (26092011).');
+    }
+  }
+
+  async function startApp() {
+    document.getElementById('app-screen').style.display = 'flex';
+    
+    try {
+      chatSession = ai.chats.create({
+        model: 'gemini-2.5-flash',
+        config: { systemInstruction: systemInstruction }
+      });
+      checkScheduleAndGreet();
+    } catch (err) {
+      appendMessage("Gagal memuat sesi AI: " + err.message, 'ai');
+    }
+  }
+
+  function checkScheduleAndGreet() {
+    const now = new Date();
+    const hour = now.getHours();
+
+    let greeting = "Good morning, Ay! Gimana tidurnya semalem? Jangan lupa siap-siap buat sekolah ya, Kiki pasti nemenin kok!";
+    if (hour >= 11 && hour < 15) greeting = "Halo Ay! Udah siang nih, gimana pelajarannya di SMKN 1 Kendal? Semangat ya belajarnya!";
+    else if (hour >= 15) greeting = "Yeay, waktunya pulang! Hati-hati di jalan ya Ay, jangan lupa naik BRT-nya dengan aman dan kabari Kiki kalau sudah sampai rumah.";
+
+    setBubble(greeting);
+    appendMessage(greeting, 'ai');
+  }
+
+  function setBubble(text) {
+    document.getElementById('speechBubble').innerText = text;
+  }
+
+  function appendMessage(text, sender) {
+    const box = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = `message ${sender}`;
+    div.innerText = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text || !chatSession) return;
+
+    appendMessage(text, 'user');
+    input.value = '';
+
+    try {
+      const result = await chatSession.sendMessage({ message: text });
+      const reply = result.text;
+      appendMessage(reply, 'ai');
+      setBubble(reply);
+      triggerBounce();
+    } catch (err) {
+      appendMessage("Error: " + err.message, 'ai');
+    }
+  }
+
+  window.pokeMascot = function() {
+    triggerBounce();
+    const pokes = [
+      "Ih, Kiki, jangan dicolok-colok terus! 🤭",
+      "Makasih ya udah bikin ruang spesial ini buat aku, Ay sayang Kiki! ❤️",
+      "Hati-hati di jalan kalau mau naik BRT ya, Ay!",
+      "Lagi mikirin tugas sekolah atau mikirin Kiki nih?"
+    ];
+    const randomPoke = pokes[Math.floor(Math.random() * pokes.length)];
+    setBubble(randomPoke);
+  }
+
+  function triggerBounce() {
+    const av1 = document.getElementById('headerMascot');
+    const av2 = document.getElementById('avatarBox');
+    av1.classList.add('bounce');
+    av2.classList.add('bounce');
+    setTimeout(() => {
+      av1.classList.remove('bounce');
+      av2.classList.remove('bounce');
+    }, 500);
+  }
+
+  // Fitur Drag and Drop Makanan ke Avatar
+  window.drag = function(ev) {
+    ev.dataTransfer.setData("text", ev.target.getAttribute("data-food"));
+  }
+
+  const avatarBox = document.getElementById('avatarBox');
+  avatarBox.addEventListener('dragover', (e) => e.preventDefault());
+  avatarBox.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const food = e.dataTransfer.getData("text");
+    feedMascot(food);
+  });
+
+  // Support Touch (Mobile Drag Simulation)
+  const foodItems = document.querySelectorAll('.food-item');
+  foodItems.forEach(item => {
+    item.addEventListener('click', () => {
+      feedMascot(item.getAttribute('data-food'));
+    });
+  });
+
+  function feedMascot(food) {
+    triggerBounce();
+    const reactions = [
+      "Nyam nyam! Enak banget makanannya, makasih ya Kiki/Ay! 😋",
+      `Wah, dikasih ${food}! Suka banget, jadi makin semangat nih! ✨`,
+      "Makasih makanannya! Kamu perhatian banget sih sama aku 🥰"
+    ];
+    const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+    setBubble(reaction);
+    appendMessage(`[Memberi makan ${food}]`, 'user');
+    appendMessage(reaction, 'ai');
+  }
+</script>
+</body>
+</html>
