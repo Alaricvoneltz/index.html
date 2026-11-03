@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Seblak & Fruit Slicer</title>
+<title>Seblak vs Bocil - Tower Defense</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -12,344 +12,364 @@
     background: #090d16; color: #fff;
     font-family: 'Space Grotesk', sans-serif;
     overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
   }
 
   #game-container {
     position: relative; width: 100%; height: 100%;
-    max-width: 480px; margin: 0 auto;
-    background: radial-gradient(circle at center, #1e1b4b 0%, #090d16 100%);
-    box-shadow: 0 0 40px rgba(244, 63, 94, 0.25);
+    max-width: 480px; background: #111827;
+    display: flex; flex-direction: column;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
   }
 
+  /* Header Stat */
+  .header {
+    height: 50px; background: #1f2937; border-bottom: 2px solid #374151;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 16px; z-index: 10;
+  }
+  .res-box { font-size: 16px; font-weight: 900; color: #ef4444; display: flex; align-items: center; gap: 6px; }
+  .wave-box { font-size: 12px; color: #9ca3af; font-weight: 700; }
+
+  /* Arena Canvas */
+  #canvas-wrapper { flex: 1; position: relative; width: 100%; }
   canvas { width: 100%; height: 100%; display: block; touch-action: none; }
 
-  /* UI HUD */
-  .hud {
-    position: absolute; top: 16px; left: 16px; right: 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    pointer-events: none; z-index: 10;
+  /* Selector Deck Unit (Bawah) */
+  .deck-bar {
+    height: 90px; background: #1f2937; border-top: 2px solid #374151;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 6px; z-index: 10;
   }
-  .stat-box {
-    background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(244, 63, 94, 0.3);
-    padding: 6px 14px; border-radius: 12px; backdrop-filter: blur(6px);
+  .card-unit {
+    width: 70px; height: 75px; background: #374151; border: 2px solid #4b5563;
+    border-radius: 10px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; cursor: pointer; transition: 0.15s;
   }
-  .stat-label { font-size: 10px; color: #fda4af; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-value { font-size: 20px; font-weight: 900; color: #fbbf24; }
+  .card-unit.active { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); transform: scale(1.05); }
+  .card-unit.disabled { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+  .card-icon { font-size: 24px; }
+  .card-cost { font-size: 11px; font-weight: 900; color: #fca5a5; margin-top: 2px; }
 
-  /* Overlay UI */
+  /* Overlay Screen */
   .overlay {
-    position: absolute; inset: 0;
-    background: rgba(9, 13, 22, 0.9);
+    position: absolute; inset: 0; background: rgba(17, 24, 39, 0.92);
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    padding: 24px; text-align: center; z-index: 20; backdrop-filter: blur(8px);
+    z-index: 20; padding: 20px; text-align: center;
   }
-
-  h1 { font-size: 28px; font-weight: 900; color: #f43f5e; text-shadow: 0 0 15px rgba(244, 63, 94, 0.6); margin-bottom: 6px; }
-  p { font-size: 13px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }
-
-  .btn-play {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white; font-family: inherit; font-size: 16px; font-weight: 900;
-    border: none; padding: 14px 32px; border-radius: 14px; cursor: pointer;
-    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.5); transition: 0.2s;
+  .overlay h1 { font-size: 26px; color: #ef4444; margin-bottom: 8px; font-weight: 900; }
+  .overlay p { font-size: 13px; color: #9ca3af; margin-bottom: 20px; line-height: 1.5; }
+  .btn-start {
+    background: #ef4444; color: white; border: none; padding: 12px 30px;
+    border-radius: 10px; font-size: 16px; font-weight: 900; cursor: pointer;
   }
-  .btn-play:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
 
 <div id="game-container">
-  <canvas id="canvas"></canvas>
+  <!-- Top Bar -->
+  <div class="header">
+    <div class="res-box">🌶️ <span id="res-val">100</span></div>
+    <div class="wave-box">WAVE <span id="wave-val">1</span></div>
+  </div>
 
-  <!-- HUD BAR -->
-  <div class="hud">
-    <div class="stat-box">
-      <div class="stat-label">SKOR</div>
-      <div id="score-val" class="stat-value">0</div>
+  <!-- Arena Game -->
+  <div id="canvas-wrapper">
+    <canvas id="canvas"></canvas>
+
+    <!-- Overlay Start -->
+    <div id="screen-start" class="overlay">
+      <h1>SEBLAK VS BOCIL 🛡️</h1>
+      <p>Pilih unit di deck bawah, lalu tap petak jalur untuk memasangnya.<br>Tahan serbuan Bocil dari gerobak seblak!</p>
+      <button class="btn-start" onclick="startGame()">MULAI MAIN</button>
     </div>
-    <div class="stat-box" style="text-align: right;">
-      <div class="stat-label">NYAWA</div>
-      <div id="lives-val" class="stat-value" style="font-size:16px;">❤️❤️❤️</div>
+
+    <!-- Overlay Game Over -->
+    <div id="screen-gameover" class="overlay" style="display:none;">
+      <h1>GEROBAK JEBOLL! 💥</h1>
+      <p>Bocil berhasil menerobos pertahanan seblakmu.</p>
+      <button class="btn-start" onclick="startGame()">COBA LAGI</button>
     </div>
   </div>
 
-  <!-- START OVERLAY -->
-  <div id="start-screen" class="overlay">
-    <h1>SEBLAK SLICER ⚔️</h1>
-    <p>Tebas 🍲 Seblak, 🍉 Semangka, 🥭 Mangga & 🧋 Es Teh!<br><b>HINDARI BOM 💣 & JANGAN BIARKAN JATUH!</b></p>
-    <button class="btn-play" onclick="startGame()">MULAI TEBAS</button>
-  </div>
-
-  <!-- GAMEOVER OVERLAY -->
-  <div id="gameover-screen" class="overlay" style="display:none;">
-    <h1 style="color:#ef4444;">GAME OVER 💥</h1>
-    <p>Skor Akhir Kamu: <b id="final-score" style="color:#fbbf24; font-size:18px;">0</b><br>Rekor Tertinggi: <b id="high-score" style="color:#38bdf8;">0</b></p>
-    <button class="btn-play" onclick="startGame()">MAIN LAGI</button>
+  <!-- Selection Cards -->
+  <div class="deck-bar">
+    <div class="card-unit" id="card-esteh" onclick="selectUnit('esteh')">
+      <span class="card-icon">🧋</span>
+      <span class="card-cost">🌶️ 50</span>
+    </div>
+    <div class="card-unit" id="card-cabai" onclick="selectUnit('cabai')">
+      <span class="card-icon">🌶️</span>
+      <span class="card-cost">🌶️ 100</span>
+    </div>
+    <div class="card-unit" id="card-semangka" onclick="selectUnit('semangka')">
+      <span class="card-icon">🍉</span>
+      <span class="card-cost">🌶️ 175</span>
+    </div>
+    <div class="card-unit" id="card-mangga" onclick="selectUnit('mangga')">
+      <span class="card-icon">🥭</span>
+      <span class="card-cost">🌶️ 50</span>
+    </div>
   </div>
 </div>
 
 <script>
-  // Web Audio Synth SFX
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+  /* ========================================================
+     KONFIGURASI ASET GAMBAR (PNG TRANSPARAN)
+     Saat gambar sudah ada, ganti null dengan link URL gambar:
+     contoh: cabai: 'https://domain.com/cabai.png'
+  ======================================================== */
+  const ASSETS_URL = {
+    esteh: null,
+    cabai: null,
+    semangka: null,
+    mangga: null,
+    bocil_sd: null,
+    bocil_sepeda: null
+  };
 
-  function playSound(type) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    const now = audioCtx.currentTime;
-
-    if (type === 'slice') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(400, now);
-      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
-      osc.start(now); osc.stop(now + 0.08);
-    } else if (type === 'bomb') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-      osc.start(now); osc.stop(now + 0.3);
+  // Preload Image Objects
+  const IMAGES = {};
+  for (let key in ASSETS_URL) {
+    if (ASSETS_URL[key]) {
+      IMAGES[key] = new Image();
+      IMAGES[key].src = ASSETS_URL[key];
     }
   }
 
-  // Setup Canvas
+  // Canvas Setup
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const container = document.getElementById('game-container');
+  const wrapper = document.getElementById('canvas-wrapper');
+
+  const ROWS = 5;
+  const COLS = 6;
+  let cellW, cellH;
 
   function resize() {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+    canvas.width = wrapper.clientWidth;
+    canvas.height = wrapper.clientHeight;
+    cellW = canvas.width / COLS;
+    cellH = canvas.height / ROWS;
   }
   resize();
   window.addEventListener('resize', resize);
 
-  // Daftar Item Kuliner
-  const ITEM_TYPES = [
-    { icon: '🍲', name: 'Seblak', pts: 10, color: '#f43f5e' },
-    { icon: '🍉', name: 'Semangka', pts: 15, color: '#22c55e' },
-    { icon: '🥭', name: 'Mangga', pts: 15, color: '#eab308' },
-    { icon: '🧋', name: 'Es Teh', pts: 10, color: '#d97706' },
-    { icon: '🌶️', name: 'Cabai', pts: 25, color: '#ef4444' },
-    { icon: '💣', name: 'Bom', pts: 0, isBomb: true }
-  ];
-
-  // Game Variables
+  // Data Game State
   let isPlaying = false;
-  let score = 0;
-  let lives = 3;
-  let highScore = localStorage.getItem('seblak_slice_hs') || 0;
-  let items = [];
-  let particles = [];
-  let slicedHalves = [];
-  let swipePath = [];
+  let points = 100;
+  let wave = 1;
+  let selectedUnitType = null;
   let spawnTimer = 0;
 
-  // Touch & Mouse Input Tracking
-  let isSwiping = false;
+  let grid = [];
+  let towers = [];
+  let enemies = [];
+  let bullets = [];
 
-  function addSwipePoint(x, y) {
+  const UNIT_SPECS = {
+    esteh:    { cost: 50,  hp: 80,  icon: '🧋', type: 'resource' },
+    cabai:    { cost: 100, hp: 100, icon: '🌶️', type: 'shooter',  rate: 60, dmg: 20 },
+    semangka: { cost: 175, hp: 120, icon: '🍉', type: 'splash',   rate: 90, dmg: 35 },
+    mangga:   { cost: 50,  hp: 400, icon: '🥭', type: 'wall' }
+  };
+
+  // Touch / Click Input Grid
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!isPlaying || !selectedUnitType) return;
     const rect = canvas.getBoundingClientRect();
-    const ptX = x - rect.left;
-    const ptY = y - rect.top;
-    swipePath.push({ x: ptX, y: ptY, time: Date.now() });
-    checkSlices(ptX, ptY);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const col = Math.floor(x / cellW);
+    const row = Math.floor(y / cellH);
+
+    if (col >= 0 && col < COLS - 1 && row >= 0 && row < ROWS) {
+      placeTower(row, col);
+    }
+  });
+
+  function selectUnit(type) {
+    if (points < UNIT_SPECS[type].cost) return;
+    selectedUnitType = type;
+    document.querySelectorAll('.card-unit').forEach(el => el.classList.remove('active'));
+    document.getElementById(`card-${type}`).classList.add('active');
   }
 
-  window.addEventListener('touchstart', (e) => { isSwiping = true; addSwipePoint(e.touches[0].clientX, e.touches[0].clientY); });
-  window.addEventListener('touchmove', (e) => { if (isSwiping) addSwipePoint(e.touches[0].clientX, e.touches[0].clientY); });
-  window.addEventListener('touchend', () => { isSwiping = false; });
+  function placeTower(row, col) {
+    // Cek petak kosong
+    const exist = towers.find(t => t.row === row && t.col === col);
+    if (exist) return;
 
-  window.addEventListener('mousedown', (e) => { isSwiping = true; addSwipePoint(e.clientX, e.clientY); });
-  window.addEventListener('mousemove', (e) => { if (isSwiping) addSwipePoint(e.clientX, e.clientY); });
-  window.addEventListener('mouseup', () => { isSwiping = false; });
-
-  function spawnItems() {
-    const count = Math.floor(Math.random() * 2) + 1;
-    for (let i = 0; i < count; i++) {
-      const type = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)];
-      items.push({
-        x: Math.random() * (canvas.width - 80) + 40,
-        y: canvas.height + 40,
-        vx: (Math.random() - 0.5) * 4,
-        vy: -(Math.random() * 3 + 11),
-        gravity: 0.28,
-        radius: 30,
-        rotation: 0,
-        vRot: (Math.random() - 0.5) * 0.1,
-        sliced: false,
-        type: type
+    const spec = UNIT_SPECS[selectedUnitType];
+    if (points >= spec.cost) {
+      points -= spec.cost;
+      towers.push({
+        row: row, col: col,
+        x: col * cellW + cellW/2,
+        y: row * cellH + cellH/2,
+        hp: spec.hp, maxHp: spec.hp,
+        type: selectedUnitType,
+        timer: 0
       });
+      selectedUnitType = null;
+      document.querySelectorAll('.card-unit').forEach(el => el.classList.remove('active'));
+      updateUI();
     }
   }
 
-  function checkSlices(x, y) {
-    if (!isPlaying) return;
-    for (let i = items.length - 1; i >= 0; i--) {
-      let item = items[i];
-      if (item.sliced) continue;
-
-      const dist = Math.hypot(item.x - x, item.y - y);
-      if (dist < item.radius + 15) {
-        item.sliced = true;
-        
-        if (item.type.isBomb) {
-          playSound('bomb');
-          createExplosion(item.x, item.y, '#ef4444', 30);
-          endGame();
-          return;
-        }
-
-        playSound('slice');
-        score += item.type.pts;
-        document.getElementById('score-val').innerText = score;
-
-        // Buat Efek Cipratan & Potongan 2 Bagian
-        createSplatter(item.x, item.y, item.type.color);
-        createHalves(item);
-        items.splice(i, 1);
-      }
-    }
-  }
-
-  function createHalves(item) {
-    slicedHalves.push({
-      x: item.x - 10, y: item.y, vx: item.vx - 3, vy: item.vy - 1,
-      gravity: item.gravity, icon: item.type.icon, rotation: item.rotation, vRot: -0.15
+  function spawnEnemy() {
+    const row = Math.floor(Math.random() * ROWS);
+    const isFast = Math.random() > 0.7;
+    enemies.push({
+      row: row,
+      x: canvas.width + 20,
+      y: row * cellH + cellH/2,
+      hp: isFast ? 70 : 150,
+      maxHp: isFast ? 70 : 150,
+      speed: isFast ? 1.4 : 0.7,
+      type: isFast ? 'bocil_sepeda' : 'bocil_sd',
+      icon: isFast ? '🏃' : '👦',
+      eatTimer: 0
     });
-    slicedHalves.push({
-      x: item.x + 10, y: item.y, vx: item.vx + 3, vy: item.vy - 1,
-      gravity: item.gravity, icon: item.type.icon, rotation: item.rotation, vRot: 0.15
-    });
-  }
-
-  function createSplatter(x, y, color) {
-    for (let i = 0; i < 15; i++) {
-      particles.push({
-        x: x, y: y,
-        vx: (Math.random() - 0.5) * 8,
-        vy: (Math.random() - 0.5) * 8,
-        radius: Math.random() * 5 + 3,
-        color: color,
-        life: 20
-      });
-    }
-  }
-
-  function createExplosion(x, y, color, count) {
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: x, y: y,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 0.5) * 12,
-        radius: Math.random() * 8 + 4,
-        color: color,
-        life: 30
-      });
-    }
   }
 
   function update() {
     if (!isPlaying) return;
 
-    // Timer Spawn Makanan
+    // Spawn Logic
     spawnTimer++;
-    if (spawnTimer % 65 === 0) spawnItems();
+    if (spawnTimer % Math.max(90, 220 - wave * 20) === 0) {
+      spawnEnemy();
+    }
 
-    // Clean Trail
-    const now = Date.now();
-    swipePath = swipePath.filter(pt => now - pt.time < 150);
+    // Towers Logic
+    towers.forEach(t => {
+      t.timer++;
+      const spec = UNIT_SPECS[t.type];
 
-    // Update Items
-    for (let i = items.length - 1; i >= 0; i--) {
-      let item = items[i];
-      item.x += item.vx;
-      item.y += item.vy;
-      item.vy += item.gravity;
-      item.rotation += item.vRot;
-
-      // Hukuman jika makanan luput jatuh (Bukan Bom)
-      if (item.y > canvas.height + 60) {
-        if (!item.type.isBomb) {
-          lives--;
-          updateLivesUI();
-          if (lives <= 0) endGame();
-        }
-        items.splice(i, 1);
+      if (spec.type === 'resource' && t.timer % 300 === 0) {
+        points += 25; updateUI();
       }
+
+      if (spec.type === 'shooter' && t.timer % spec.rate === 0) {
+        // Cek jika ada musuh di jalurnya
+        const hasEnemyInRow = enemies.some(e => e.row === t.row && e.x > t.x);
+        if (hasEnemyInRow) {
+          bullets.push({ x: t.x + 15, y: t.y, row: t.row, dmg: spec.dmg, icon: '🔴', speed: 6 });
+        }
+      }
+
+      if (spec.type === 'splash' && t.timer % spec.rate === 0) {
+        const hasEnemyInRow = enemies.some(e => e.row === t.row && e.x > t.x);
+        if (hasEnemyInRow) {
+          bullets.push({ x: t.x + 15, y: t.y, row: t.row, dmg: spec.dmg, icon: '🍉', speed: 4, splash: true });
+        }
+      }
+    });
+
+    // Bullets Logic
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      let b = bullets[i];
+      b.x += b.speed;
+
+      for (let j = enemies.length - 1; j >= 0; j--) {
+        let e = enemies[j];
+        if (e.row === b.row && Math.abs(e.x - b.x) < 20) {
+          e.hp -= b.dmg;
+          if (b.splash) {
+            // Splash ke musuh terdekat
+            enemies.forEach(other => {
+              if (other.row === b.row && Math.abs(other.x - e.x) < 50) other.hp -= 15;
+            });
+          }
+          bullets.splice(i, 1);
+          if (e.hp <= 0) enemies.splice(j, 1);
+          break;
+        }
+      }
+      if (b.x > canvas.width + 20) bullets.splice(i, 1);
     }
 
-    // Update Sliced Halves
-    for (let i = slicedHalves.length - 1; i >= 0; i--) {
-      let h = slicedHalves[i];
-      h.x += h.vx; h.y += h.vy; h.vy += h.gravity; h.rotation += h.vRot;
-      if (h.y > canvas.height + 60) slicedHalves.splice(i, 1);
-    }
+    // Enemies Logic
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      let e = enemies[i];
+      
+      // Hitung tabrakan dengan Tower
+      const blockingTower = towers.find(t => t.row === e.row && Math.abs(t.x - e.x) < 25);
 
-    // Update Particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-      let p = particles[i];
-      p.x += p.vx; p.y += p.vy; p.life--;
-      if (p.life <= 0) particles.splice(i, 1);
+      if (blockingTower) {
+        e.eatTimer++;
+        if (e.eatTimer % 30 === 0) {
+          blockingTower.hp -= 15;
+          if (blockingTower.hp <= 0) {
+            towers = towers.filter(t => t !== blockingTower);
+          }
+        }
+      } else {
+        e.x -= e.speed;
+      }
+
+      // Kalah jika tembus ujung kiri
+      if (e.x < 10) {
+        gameOver();
+        return;
+      }
     }
   }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Items
-    items.forEach(item => {
-      ctx.save();
-      ctx.translate(item.x, item.y);
-      ctx.rotate(item.rotation);
-      ctx.font = '42px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(item.type.icon, 0, 0);
-      ctx.restore();
-    });
-
-    // Draw Sliced Halves
-    slicedHalves.forEach(h => {
-      ctx.save();
-      ctx.translate(h.x, h.y);
-      ctx.rotate(h.rotation);
-      ctx.font = '32px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(h.icon, 0, 0);
-      ctx.restore();
-    });
-
-    // Draw Particles
-    particles.forEach(p => {
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // Draw Neon Swipe Blade Trail
-    if (swipePath.length > 1) {
-      ctx.beginPath();
-      ctx.moveTo(swipePath[0].x, swipePath[0].y);
-      for (let i = 1; i < swipePath.length; i++) {
-        ctx.lineTo(swipePath[i].x, swipePath[i].y);
-      }
-      ctx.strokeStyle = '#f43f5e';
-      ctx.lineWidth = 6;
-      ctx.lineCap = 'round';
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#f43f5e';
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+    // Draw Grid Lines & Lanes
+    for (let r = 0; r < ROWS; r++) {
+      ctx.fillStyle = (r % 2 === 0) ? '#1f2937' : '#111827';
+      ctx.fillRect(0, r * cellH, canvas.width, cellH);
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.strokeRect(0, r * cellH, canvas.width, cellH);
     }
+    for (let c = 0; c < COLS; c++) {
+      ctx.beginPath();
+      ctx.moveTo(c * cellW, 0); ctx.lineTo(c * cellW, canvas.height);
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.stroke();
+    }
+
+    // Draw Towers
+    towers.forEach(t => {
+      if (IMAGES[t.type]) {
+        ctx.drawImage(IMAGES[t.type], t.x - cellW/3, t.y - cellH/3, cellW*0.7, cellH*0.7);
+      } else {
+        ctx.font = `${cellH * 0.4}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(UNIT_SPECS[t.type].icon, t.x, t.y);
+      }
+      // Darah Tower
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(t.x - 15, t.y + 20, (t.hp / t.maxHp) * 30, 4);
+    });
+
+    // Draw Bullets
+    bullets.forEach(b => {
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.icon, b.x, b.y);
+    });
+
+    // Draw Enemies
+    enemies.forEach(e => {
+      if (IMAGES[e.type]) {
+        ctx.drawImage(IMAGES[e.type], e.x - cellW/3, e.y - cellH/3, cellW*0.7, cellH*0.7);
+      } else {
+        ctx.font = `${cellH * 0.45}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(e.icon, e.x, e.y);
+      }
+      // Darah Musuh
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(e.x - 15, e.y - 25, Math.max(0, (e.hp / e.maxHp)) * 30, 4);
+    });
   }
 
   function loop() {
@@ -358,36 +378,32 @@
     if (isPlaying) requestAnimationFrame(loop);
   }
 
-  function updateLivesUI() {
-    let hearts = '';
-    for (let i = 0; i < lives; i++) hearts += '❤️';
-    document.getElementById('lives-val').innerText = hearts || '💀';
+  function updateUI() {
+    document.getElementById('res-val').innerText = points;
+    document.getElementById('wave-val').innerText = wave;
+
+    // Disabled card jika poin kurang
+    for (let key in UNIT_SPECS) {
+      const card = document.getElementById(`card-${key}`);
+      if (points < UNIT_SPECS[key].cost) card.classList.add('disabled');
+      else card.classList.remove('disabled');
+    }
   }
 
   function startGame() {
-    initAudio();
-    score = 0; lives = 3; items = []; particles = []; slicedHalves = []; swipePath = [];
-    document.getElementById('score-val').innerText = '0';
-    updateLivesUI();
-
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('gameover-screen').style.display = 'none';
-
+    points = 100; wave = 1; spawnTimer = 0;
+    towers = []; enemies = []; bullets = [];
+    document.getElementById('screen-start').style.display = 'none';
+    document.getElementById('screen-gameover').style.display = 'none';
+    updateUI();
     isPlaying = true;
     loop();
   }
 
-  function endGame() {
+  function gameOver() {
     isPlaying = false;
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('seblak_slice_hs', highScore);
-    }
-    document.getElementById('final-score').innerText = score;
-    document.getElementById('high-score').innerText = highScore;
-    document.getElementById('gameover-screen').style.display = 'flex';
+    document.getElementById('screen-gameover').style.display = 'flex';
   }
 </script>
-
 </body>
 </html>
