@@ -40,6 +40,7 @@
   }
   .btn:active { transform: scale(0.96); }
 
+  /* Main App UI */
   #app-screen { display: none; justify-content: flex-start; padding: 16px; }
   
   .chat-container {
@@ -103,7 +104,9 @@
         </div>
       </div>
 
-      <div class="chat-box" id="chatBox"></div>
+      <div class="chat-box" id="chatBox">
+        <!-- Chat history akan muncul disini -->
+      </div>
 
       <div class="input-area">
         <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
@@ -113,7 +116,7 @@
   </div>
 
 <script>
-  // API Key format AQ kamu
+  // Token AQ kamu yang terpasang aman
   const GEMINI_API_KEY = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw"; 
 
   function checkPassword() {
@@ -131,6 +134,7 @@
     checkScheduleAndGreet();
   }
 
+  // Deteksi Jadwal & Waktu Otomatis untuk Sapaan Awal
   function checkScheduleAndGreet() {
     const now = new Date();
     const hour = now.getHours();
@@ -160,15 +164,17 @@
     appendMessage(text, 'user');
     input.value = '';
 
-    // Konteks instruksi & percakapan untuk dikirim ke API Interactions
-    const systemPrompt = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". Dia adalah Wafina Septianingsih (lahir 26 September 2011), siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah. PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). Sesuaikan obrolan dengan jadwal sekolahnya dan ingatkan keselamatannya saat naik BRT. Pesan dari Ay: ${text}`;
+    const systemPrompt = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
+    Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
+    PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
+    Sesuaikan obrolan dengan jadwal sekolahnya (Dasar-dasar Busana, Koding dan KA, Sejarah, dll.) dan ingatkan soal keselamatannya saat naik BRT. Jawab dengan ramah dan natural seperti sahabat/pacar yang peduli. Pesan dari Ay: ${text}`;
 
     try {
       const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": GEMINI_API_KEY,
-          "Content-Type": "application/json"
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${GEMINI_API_KEY}`,
+          'Content-Type': 'application/json' 
         },
         body: JSON.stringify({
           model: "gemini-flash-latest",
@@ -178,18 +184,13 @@
 
       const data = await response.json();
       
-      // Menyesuaikan struktur respon dari endpoint interactions
       if (data.output || data.response || data.text || (data.candidates && data.candidates[0])) {
-        // Menangkap teks dari berbagai kemungkinan struktur respon interactions
         const reply = data.output || data.response || data.text || data.candidates[0].content.parts[0].text;
         appendMessage(reply, 'ai');
       } else if (data.error) {
         appendMessage(`Error: ${data.error.message}`, 'ai');
       } else {
-        // Fallback jika format JSON-nya berbeda tipis, tampilkan stringify ringkas atau teks balasan
-        // Cek apakah ada properti lain di dalam data
-        const fallbackText = JSON.stringify(data);
-        appendMessage(fallbackText, 'ai');
+        appendMessage(JSON.stringify(data), 'ai');
       }
     } catch (err) {
       appendMessage("Terjadi kesalahan jaringan, periksa koneksi internetmu ya Ay.", 'ai');
