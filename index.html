@@ -2,327 +2,570 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Seblak Catch & Dodge</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CYBER-FORCE: NEON SHOOTER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-  body {
-    font-family: 'Space Grotesk', sans-serif;
-    background: radial-gradient(circle at center, #1e112a 0%, #09090b 100%);
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  body, html {
+    width: 100%; height: 100%;
+    background: #030712;
     color: #fff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
+    font-family: 'Space Grotesk', sans-serif;
     overflow: hidden;
   }
 
-  .game-card {
-    width: 100%;
-    max-width: 420px;
-    background: rgba(24, 24, 27, 0.95);
-    border: 1px solid rgba(244, 63, 94, 0.3);
-    border-radius: 20px;
-    padding: 16px;
-    box-shadow: 0 0 30px rgba(244, 63, 94, 0.2);
-    text-align: center;
-  }
-
-  h1 {
-    font-size: 20px;
-    color: #f43f5e;
-    text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
-    margin-bottom: 2px;
-  }
-
-  .subtitle { font-size: 11px; color: #fda4af; margin-bottom: 10px; }
-
-  .stats-bar {
-    display: flex;
-    justify-content: space-around;
-    background: #09090b;
-    padding: 8px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #27272a;
-  }
-
-  .stat-box { font-size: 11px; color: #a1a1aa; }
-  .stat-val { font-size: 16px; font-weight: 700; color: #fbbf24; display: block; }
-
-  #canvas-container {
+  #game-container {
     position: relative;
-    width: 100%;
-    height: 340px;
-    background: #0d0e15;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 2px solid rgba(244, 63, 94, 0.4);
-    touch-action: none;
+    width: 100%; height: 100%;
+    max-width: 480px; margin: 0 auto;
+    background: #000;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
   }
 
   canvas { width: 100%; height: 100%; display: block; }
 
-  .controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
+  /* HUD UI Overlay */
+  .hud {
+    position: absolute; top: 12px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none; z-index: 10;
+  }
+  .hud-box {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    padding: 6px 12px; border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+  .hud-title { font-size: 9px; color: #94a3b8; text-transform: uppercase; }
+  .hud-val { font-family: 'Orbitron', sans-serif; font-size: 14px; color: #38bdf8; font-weight: 700; }
+
+  .hp-bar-bg {
+    width: 100px; height: 10px; background: #1e293b;
+    border-radius: 5px; overflow: hidden; margin-top: 3px;
+    border: 1px solid #475569;
+  }
+  .hp-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #22c55e); transition: width 0.2s; }
+
+  /* Boss Bar Header */
+  #boss-bar-container {
+    position: absolute; top: 60px; left: 20px; right: 20px;
+    text-align: center; display: none; z-index: 10; pointer-events: none;
+  }
+  .boss-name { font-family: 'Orbitron', sans-serif; font-size: 12px; color: #f43f5e; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; }
+  .boss-hp-bg { width: 100%; height: 12px; background: rgba(0,0,0,0.8); border: 1px solid #f43f5e; border-radius: 6px; overflow: hidden; }
+  .boss-hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f43f5e, #fb923c); transition: width 0.1s; }
+
+  /* Skill Button */
+  .skill-btn {
+    position: absolute; bottom: 20px; right: 20px;
+    width: 65px; height: 65px; border-radius: 50%;
+    background: radial-gradient(circle, #8b5cf6, #5b21b6);
+    border: 2px solid #a78bfa; color: white;
+    font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 900;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+    cursor: pointer; z-index: 12; touch-action: manipulation;
+  }
+  .skill-btn:active { transform: scale(0.92); }
+
+  /* Overlays */
+  .overlay-screen {
+    position: absolute; inset: 0;
+    background: rgba(3, 7, 18, 0.92);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 24px; z-index: 20; backdrop-filter: blur(8px);
+    text-align: center;
   }
 
-  .btn-ctrl {
-    flex: 1;
-    background: #27272a;
-    border: 1px solid #3f3f46;
-    color: white;
-    padding: 14px;
-    font-size: 18px;
-    border-radius: 12px;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-  .btn-ctrl:active { background: #f43f5e; }
-
-  .btn-start {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white;
-    border: none;
-    padding: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 12px;
-    width: 100%;
-    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+  h1.game-title {
+    font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900;
+    color: #a855f7; text-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+    margin-bottom: 6px; letter-spacing: 1px;
   }
 
-  #overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(9, 9, 11, 0.9);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
+  p.desc { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
+
+  .btn-main {
+    font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: white; border: none; padding: 14px 28px; border-radius: 12px;
+    cursor: pointer; box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+    transition: 0.2s; width: 80%; max-width: 260px; margin-top: 8px;
   }
-  #overlay h2 { font-size: 20px; color: #fbbf24; margin-bottom: 6px; }
-  #overlay p { font-size: 12px; color: #fda4af; text-align: center; line-height: 1.5; }
+  .btn-main:active { transform: scale(0.96); }
+
+  /* Shop Menu */
+  .shop-grid {
+    width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; margin: 15px 0;
+  }
+  .shop-item {
+    background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .shop-info { text-align: left; }
+  .shop-name { font-size: 13px; font-weight: 700; color: #f8fafc; }
+  .shop-sub { font-size: 10px; color: #64748b; }
+  .btn-buy {
+    font-family: 'Orbitron', sans-serif; font-size: 11px; background: #22c55e;
+    color: #000; font-weight: 900; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
-<div class="game-card">
-  <h1>🍲 SEBLAK RUNNER</h1>
-  <div class="subtitle">Tangkap Kuliner & Hindari Bom!</div>
-  
-  <div class="stats-bar">
-    <div class="stat-box">Skor<span id="score" class="stat-val">0</span></div>
-    <div class="stat-box">Nyawa<span id="lives" class="stat-val">❤️❤️❤️</span></div>
-    <div class="stat-box">Rekor<span id="highscore" class="stat-val">0</span></div>
-  </div>
+<div id="game-container">
+  <canvas id="canvas"></canvas>
 
-  <div id="canvas-container">
-    <canvas id="gameCanvas"></canvas>
-    <div id="overlay">
-      <h2>CARA MAIN</h2>
-      <p>Geser layar / tombol bawah untuk menggerakkan Mangkuk.<br>Tangkap 🍲 🍉 🧋 🌶️ dan <b>HINDARI 💣 BOM!</b></p>
-      <button class="btn-start" onclick="startGame()">MULAI MAIN</button>
+  <div class="hud">
+    <div class="hud-box">
+      <div class="hud-title">HP SHIP</div>
+      <div class="hp-bar-bg"><div id="hp-fill" class="hp-bar-fill"></div></div>
+    </div>
+    <div class="hud-box" style="text-align: right;">
+      <div class="hud-title">SCORE / KOIN</div>
+      <div id="hud-score" class="hud-val">0</div>
+      <div id="hud-coins" class="hud-val" style="color:#eab308; font-size:11px;">🪙 0</div>
     </div>
   </div>
 
-  <div class="controls">
-    <button class="btn-ctrl" id="btn-left">◀ KIRI</button>
-    <button class="btn-ctrl" id="btn-right">KANAN ▶</button>
+  <div id="boss-bar-container">
+    <div id="boss-name" class="boss-name">WARNING: CYBER DREADNOUGHT</div>
+    <div class="boss-hp-bg"><div id="boss-hp-fill" class="boss-hp-fill"></div></div>
+  </div>
+
+  <div id="btn-bomb" class="skill-btn" onclick="useBomb()">
+    <span>BOMB</span>
+    <span id="bomb-count" style="font-size:8px; color:#fbbf24;">x1</span>
+  </div>
+
+  <div id="screen-start" class="overlay-screen">
+    <h1 class="game-title">CYBER-FORCE</h1>
+    <p class="desc">Bullet Hell Arcade & Cyber Boss Fights</p>
+    <p style="font-size:11px; color:#a78bfa; margin-bottom:20px;">Geser layar untuk menggerakkan kapal.<br>Tembakan otomatis terpasang!</p>
+    <button class="btn-main" onclick="startGame()">START GAME</button>
+  </div>
+
+  <div id="screen-shop" class="overlay-screen" style="display:none;">
+    <h1 class="game-title" style="font-size:20px; color:#38bdf8;">WAVE CLEARED!</h1>
+    <p class="desc" style="margin-bottom:8px;">Koin Kamu: <b id="shop-coins" style="color:#eab308;">0</b></p>
+    
+    <div class="shop-grid">
+      <div class="shop-item">
+        <div class="shop-info">
+          <div class="shop-name">⚡ Damage Upgrade</div>
+          <div class="shop-sub" id="sub-damage">Level 1 (+Damage)</div>
+        </div>
+        <button id="buy-damage" class="btn-buy" onclick="buyUpgrade('damage')">15 🪙</button>
+      </div>
+      <div class="shop-item">
+        <div class="shop-info">
+          <div class="shop-name">🔥 Fire Rate</div>
+          <div class="shop-sub" id="sub-firerate">Level 1 (Tembak Cepat)</div>
+        </div>
+        <button id="buy-firerate" class="btn-buy" onclick="buyUpgrade('firerate')">20 🪙</button>
+      </div>
+      <div class="shop-item">
+        <div class="shop-info">
+          <div class="shop-name">❤️ Repair & Max HP</div>
+          <div class="shop-sub">Tambah 30 HP & Max HP</div>
+        </div>
+        <button id="buy-hp" class="btn-buy" onclick="buyUpgrade('hp')">25 🪙</button>
+      </div>
+      <div class="shop-item">
+        <div class="shop-info">
+          <div class="shop-name">💣 Ultimate Bomb</div>
+          <div class="shop-sub">Stok Bom Pembersih Layar</div>
+        </div>
+        <button id="buy-bomb" class="btn-buy" onclick="buyUpgrade('bomb')">30 🪙</button>
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="nextWave()">NEXT WAVE ▶</button>
+  </div>
+
+  <div id="screen-gameover" class="overlay-screen" style="display:none;">
+    <h1 class="game-title" style="color:#ef4444;">SHIP DESTROYED</h1>
+    <p class="desc">Skor Akhir: <b id="final-score" style="color:#38bdf8;">0</b><br>Wave Mancapai: <b id="final-wave" style="color:#a855f7;">1</b></p>
+    <button class="btn-main" onclick="startGame()">TRY AGAIN</button>
   </div>
 </div>
 
 <script>
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const overlay = document.getElementById('overlay');
-  
-  let animationId;
-  let score = 0;
-  let lives = 3;
-  let highScore = localStorage.getItem('seblak_catcher_hs') || 0;
-  let isPlaying = false;
 
-  document.getElementById('highscore').innerText = highScore;
+   const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
 
-  // Ukuran Canvas
-  function resizeCanvas() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+  function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+
+  function playSFX(type) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+
+    if (type === 'laser') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+      osc.start(now); osc.stop(now + 0.08);
+    } else if (type === 'boom') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.exponentialRampToValueAtTime(20, now + 0.25);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === 'coin') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.setValueAtTime(1200, now + 0.05);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+      osc.start(now); osc.stop(now + 0.12);
+    }
   }
-  resizeCanvas();
 
-  // Pemain (Mangkuk)
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('game-container');
+
+  function resize() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let isPlaying = false;
+  let score = 0;
+  let coins = 0;
+  let wave = 1;
+  let shakeTime = 0;
+
+  let upgrades = { damageLvl: 1, firerateLvl: 1, bombs: 1 };
+
   const player = {
-    width: 60,
-    height: 30,
-    x: canvas.width / 2 - 30,
-    y: canvas.height - 40,
-    speed: 7,
-    dx: 0
+    x: 0, y: 0, width: 36, height: 42,
+    hp: 100, maxHp: 100, speed: 8,
+    lastShot: 0
   };
 
-  // Item Jatuh
-  const itemTypes = [
-    { icon: '🍲', pts: 10, isBomb: false },
-    { icon: '🍉', pts: 10, isBomb: false },
-    { icon: '🧋', pts: 10, isBomb: false },
-    { icon: '🌶️', pts: 25, isBomb: false },
-    { icon: '💣', pts: 0,  isBomb: true }
-  ];
+  let playerBullets = [];
+  let enemyBullets = [];
+  let enemies = [];
+  let particles = [];
+  let boss = null;
 
-  let items = [];
-  let spawnCounter = 0;
-
-  function spawnItem() {
-    const randomType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-    items.push({
-      x: Math.random() * (canvas.width - 30),
-      y: -30,
-      size: 28,
-      speed: 2.5 + Math.random() * 2 + (score * 0.05),
-      ...randomType
-    });
-  }
-
-  // Kontrol Layar Sentuh Drag
-  canvas.addEventListener('touchmove', (e) => {
+  container.addEventListener('touchmove', (e) => {
     if (!isPlaying) return;
-    const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+    const rect = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - rect.left;
+    const touchY = e.touches[0].clientY - rect.top;
     player.x = touchX - player.width / 2;
+    player.y = touchY - player.height / 2;
   });
 
-  // Kontrol Tombol Kiri Kanan
-  const btnLeft = document.getElementById('btn-left');
-  const btnRight = document.getElementById('btn-right');
+  function updateHUD() {
+    document.getElementById('hud-score').innerText = score;
+    document.getElementById('hud-coins').innerText = `🪙 ${coins}`;
+    const hpPct = Math.max(0, (player.hp / player.maxHp) * 100);
+    document.getElementById('hp-fill').style.width = hpPct + '%';
+    document.getElementById('bomb-count').innerText = `x${upgrades.bombs}`;
+  }
 
-  btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); player.dx = -player.speed; });
-  btnLeft.addEventListener('touchend', () => { player.dx = 0; });
-  btnLeft.addEventListener('mousedown', () => { player.dx = -player.speed; });
-  btnLeft.addEventListener('mouseup', () => { player.dx = 0; });
+  function spawnWaveEnemies() {
+    enemies = [];
+    const isBossWave = (wave % 3 === 0);
 
-  btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); player.dx = player.speed; });
-  btnRight.addEventListener('touchend', () => { player.dx = 0; });
-  btnRight.addEventListener('mousedown', () => { player.dx = player.speed; });
-  btnRight.addEventListener('mouseup', () => { player.dx = 0; });
+    if (isBossWave) {
+      document.getElementById('boss-bar-container').style.display = 'block';
+      boss = {
+        x: canvas.width / 2 - 40, y: -80, width: 80, height: 70,
+        hp: 300 + (wave * 150), maxHp: 300 + (wave * 150),
+        angle: 0, shootTimer: 0
+      };
+    } else {
+      document.getElementById('boss-bar-container').style.display = 'none';
+      boss = null;
+      const enemyCount = 5 + (wave * 3);
+      for (let i = 0; i < enemyCount; i++) {
+        enemies.push({
+          x: Math.random() * (canvas.width - 30),
+          y: -40 - (i * 45),
+          width: 28, height: 28,
+          hp: 20 + (wave * 5),
+          speed: 1.5 + Math.random() * 1.5,
+          shootDelay: 60 + Math.floor(Math.random() * 60),
+          timer: 0
+        });
+      }
+    }
+  }
+
+  function shootPlayer() {
+    const fireInterval = Math.max(100, 300 - (upgrades.firerateLvl * 35));
+    if (Date.now() - player.lastShot > fireInterval) {
+      playSFX('laser');
+      player.lastShot = Date.now();
+      const dmg = 12 + (upgrades.damageLvl * 6);
+
+      if (upgrades.firerateLvl >= 3) {
+        playerBullets.push({ x: player.x + player.width/2 - 2, y: player.y, dx: 0, dy: -10, dmg: dmg });
+        playerBullets.push({ x: player.x, y: player.y + 10, dx: -2, dy: -9, dmg: dmg });
+        playerBullets.push({ x: player.x + player.width, y: player.y + 10, dx: 2, dy: -9, dmg: dmg });
+      } else {
+        playerBullets.push({ x: player.x + 8, y: player.y, dx: 0, dy: -10, dmg: dmg });
+        playerBullets.push({ x: player.x + player.width - 12, y: player.y, dx: 0, dy: -10, dmg: dmg });
+      }
+    }
+  }
+
+  function useBomb() {
+    if (!isPlaying || upgrades.bombs <= 0) return;
+    upgrades.bombs--;
+    shakeTime = 20;
+    playSFX('boom');
+
+    enemyBullets = [];
+    enemies.forEach(e => {
+      e.hp -= 100;
+      createExplosion(e.x + e.width/2, e.y + e.height/2, '#a855f7', 15);
+    });
+    if (boss) {
+      boss.hp -= 150;
+      createExplosion(boss.x + boss.width/2, boss.y + boss.height/2, '#ef4444', 30);
+    }
+    updateHUD();
+  }
+
+  function createExplosion(x, y, color, count = 10) {
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: x, y: y,
+        dx: (Math.random() - 0.5) * 6,
+        dy: (Math.random() - 0.5) * 6,
+        radius: Math.random() * 4 + 2,
+        color: color, life: 25
+      });
+    }
+  }
 
   function update() {
     if (!isPlaying) return;
 
-    // Gerak pemain
-    player.x += player.dx;
-    if (player.x < 0) player.x = 0;
-    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+    shootPlayer();
 
-    // Spawn item berkala
-    spawnCounter++;
-    if (spawnCounter % 35 === 0) {
-      spawnItem();
+    for (let i = playerBullets.length - 1; i >= 0; i--) {
+      let b = playerBullets[i];
+      b.x += b.dx; b.y += b.dy;
+      if (b.y < -10) { playerBullets.splice(i, 1); continue; }
+
+      for (let j = enemies.length - 1; j >= 0; j--) {
+        let e = enemies[j];
+        if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
+          e.hp -= b.dmg;
+          playerBullets.splice(i, 1);
+          createExplosion(b.x, b.y, '#38bdf8', 4);
+          if (e.hp <= 0) {
+            playSFX('boom');
+            score += 50; coins += Math.floor(Math.random() * 3) + 1;
+            createExplosion(e.x + e.width/2, e.y + e.height/2, '#a855f7', 12);
+            enemies.splice(j, 1);
+          }
+          break;
+        }
+      }
+
+      if (boss && b.x > boss.x && b.x < boss.x + boss.width && b.y > boss.y && b.y < boss.y + boss.height) {
+        boss.hp -= b.dmg;
+        playerBullets.splice(i, 1);
+        createExplosion(b.x, b.y, '#fb923c', 5);
+        document.getElementById('boss-hp-fill').style.width = Math.max(0, (boss.hp / boss.maxHp)*100) + '%';
+        if (boss.hp <= 0) {
+          playSFX('boom');
+          score += 500; coins += 25;
+          shakeTime = 30;
+          createExplosion(boss.x + boss.width/2, boss.y + boss.height/2, '#f43f5e', 40);
+          boss = null;
+          document.getElementById('boss-bar-container').style.display = 'none';
+        }
+      }
     }
 
-    // Update item
-    for (let i = items.length - 1; i >= 0; i--) {
-      let item = items[i];
-      item.y += item.speed;
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      let e = enemies[i];
+      e.y += e.speed;
+      e.timer++;
 
-      // Cek Tabrakan dengan Mangkuk
-      if (
-        item.y + item.size >= player.y &&
-        item.x + item.size >= player.x &&
-        item.x <= player.x + player.width
-      ) {
-        if (item.isBomb) {
-          lives--;
-          updateLives();
-          if (lives <= 0) endGame();
-        } else {
-          score += item.pts;
-          document.getElementById('score').innerText = score;
+      if (e.timer % e.shootDelay === 0) {
+        enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height, dx: 0, dy: 4 });
+      }
+
+      if (e.y > canvas.height) enemies.splice(i, 1);
+    }
+
+    if (boss) {
+      if (boss.y < 50) boss.y += 1;
+      boss.angle += 0.03;
+      boss.x += Math.sin(boss.angle) * 2;
+      boss.shootTimer++;
+
+      if (boss.shootTimer % 25 === 0) {
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+          enemyBullets.push({
+            x: boss.x + boss.width/2, y: boss.y + boss.height/2,
+            dx: Math.cos(a + boss.angle) * 3.5, dy: Math.sin(a + boss.angle) * 3.5
+          });
         }
-        items.splice(i, 1);
+      }
+    }
+
+    for (let i = enemyBullets.length - 1; i >= 0; i--) {
+      let eb = enemyBullets[i];
+      eb.x += eb.dx; eb.y += eb.dy;
+
+      if (eb.x > player.x && eb.x < player.x + player.width && eb.y > player.y && eb.y < player.y + player.height) {
+        player.hp -= 15;
+        shakeTime = 10;
+        enemyBullets.splice(i, 1);
+        updateHUD();
+        if (player.hp <= 0) gameOver();
         continue;
       }
 
-      // Hapus jika keluar bawah
-      if (item.y > canvas.height) {
-        if (!item.isBomb) {
-          // Makanan luput (opsional: tidak mengurangi nyawa)
-        }
-        items.splice(i, 1);
-      }
+      if (eb.y > canvas.height || eb.x < 0 || eb.x > canvas.width) enemyBullets.splice(i, 1);
     }
+
+    if (enemies.length === 0 && !boss) {
+      openShop();
+    }
+
+    updateHUD();
   }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Gambar Mangkuk
-    ctx.fillStyle = '#f43f5e';
-    ctx.beginPath();
-    ctx.roundRect(player.x, player.y, player.width, player.height, [0, 0, 15, 15]);
-    ctx.fill();
-    ctx.font = '16px sans-serif';
-    ctx.fillText('🥣', player.x + 18, player.y + 20);
-
-    // Gambar Item Jatuh
-    for (let item of items) {
-      ctx.font = `${item.size}px sans-serif`;
-      ctx.fillText(item.icon, item.x, item.y);
+    ctx.save();
+    if (shakeTime > 0) {
+      ctx.translate((Math.random()-0.5)*8, (Math.random()-0.5)*8);
+      shakeTime--;
     }
+
+    ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.shadowBlur = 12; ctx.shadowColor = '#38bdf8';
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(player.x + player.width/2, player.y);
+    ctx.lineTo(player.x + player.width, player.y + player.height);
+    ctx.lineTo(player.x + player.width/2, player.y + player.height - 8);
+    ctx.lineTo(player.x, player.y + player.height);
+    ctx.closePath(); ctx.fill();
+
+    ctx.shadowColor = '#38bdf8'; ctx.fillStyle = '#38bdf8';
+    playerBullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
+
+    ctx.shadowColor = '#f43f5e'; ctx.fillStyle = '#f43f5e';
+    enemyBullets.forEach(eb => {
+      ctx.beginPath(); ctx.arc(eb.x, eb.y, 4, 0, Math.PI*2); ctx.fill();
+    });
+
+    ctx.shadowColor = '#a855f7'; ctx.fillStyle = '#a855f7';
+    enemies.forEach(e => {
+      ctx.fillRect(e.x, e.y, e.width, e.height);
+    });
+
+    if (boss) {
+      ctx.shadowColor = '#f43f5e'; ctx.fillStyle = '#f43f5e';
+      ctx.beginPath();
+      ctx.moveTo(boss.x + boss.width/2, boss.y + boss.height);
+      ctx.lineTo(boss.x + boss.width, boss.y);
+      ctx.lineTo(boss.x, boss.y);
+      ctx.closePath(); ctx.fill();
+    }
+
+    ctx.shadowBlur = 0;
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.x += p.dx; p.y += p.dy; p.life--;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.radius, p.radius);
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+
+    ctx.restore();
   }
 
-  function gameLoop() {
+  function loop() {
     update();
     draw();
-    if (isPlaying) {
-      animationId = requestAnimationFrame(gameLoop);
-    }
-  }
-
-  function updateLives() {
-    let heartStr = '';
-    for (let i = 0; i < lives; i++) heartStr += '❤️';
-    document.getElementById('lives').innerText = heartStr || '💀';
+    if (isPlaying) requestAnimationFrame(loop);
   }
 
   function startGame() {
-    resizeCanvas();
-    score = 0;
-    lives = 3;
-    items = [];
-    isPlaying = true;
-    
-    document.getElementById('score').innerText = '0';
-    updateLives();
-    overlay.style.display = 'none';
+    initAudio();
+    score = 0; coins = 0; wave = 1;
+    player.hp = 100; player.maxHp = 100;
+    upgrades = { damageLvl: 1, firerateLvl: 1, bombs: 1 };
+    player.x = canvas.width / 2 - 18;
+    player.y = canvas.height - 80;
 
-    cancelAnimationFrame(animationId);
-    gameLoop();
+    enemyBullets = []; playerBullets = [];
+    document.getElementById('screen-start').style.display = 'none';
+    document.getElementById('screen-gameover').style.display = 'none';
+    document.getElementById('screen-shop').style.display = 'none';
+
+    spawnWaveEnemies();
+    isPlaying = true;
+    loop();
   }
 
-  function endGame() {
+  function openShop() {
     isPlaying = false;
-    cancelAnimationFrame(animationId);
+    document.getElementById('shop-coins').innerText = coins;
+    document.getElementById('screen-shop').style.display = 'flex';
+  }
 
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('seblak_catcher_hs', highScore);
-      document.getElementById('highscore').innerText = highScore;
-      overlay.innerHTML = `<h2>🎉 REKOR BARU!</h2><p>Skor Akhir: <b>${score}</b></p><button class="btn-start" onclick="startGame()">MAIN LAGI</button>`;
-    } else {
-      overlay.innerHTML = `<h2>💥 GAME OVER!</h2><p>Skor Kamu: <b>${score}</b></p><button class="btn-start" onclick="startGame()">COBA LAGI</button>`;
+  function buyUpgrade(type) {
+    if (type === 'damage' && coins >= 15) {
+      coins -= 15; upgrades.damageLvl++;
+      playSFX('coin');
+      document.getElementById('sub-damage').innerText = `Level ${upgrades.damageLvl} (+Damage)`;
+    } else if (type === 'firerate' && coins >= 20) {
+      coins -= 20; upgrades.firerateLvl++;
+      playSFX('coin');
+      document.getElementById('sub-firerate').innerText = `Level ${upgrades.firerateLvl} (Fast Spread)`;
+    } else if (type === 'hp' && coins >= 25) {
+      coins -= 25; player.maxHp += 30; player.hp = Math.min(player.maxHp, player.hp + 40);
+      playSFX('coin');
+    } else if (type === 'bomb' && coins >= 30) {
+      coins -= 30; upgrades.bombs++;
+      playSFX('coin');
     }
-    overlay.style.display = 'flex';
+    document.getElementById('shop-coins').innerText = coins;
+    updateHUD();
+  }
+
+  function nextWave() {
+    wave++;
+    document.getElementById('screen-shop').style.display = 'none';
+    spawnWaveEnemies();
+    isPlaying = true;
+    loop();
+  }
+
+  function gameOver() {
+    isPlaying = false;
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('final-wave').innerText = wave;
+    document.getElementById('screen-gameover').style.display = 'flex';
   }
 </script>
-
 </body>
 </html>
