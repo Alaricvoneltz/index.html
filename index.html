@@ -6,6 +6,14 @@
 <title>For You, Ay 🌸</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Load SDK Resmi Google Gen AI yang mendukung token AQ -->
+<script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.run/@google/genai"
+    }
+  }
+</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body, html {
@@ -40,7 +48,6 @@
   }
   .btn:active { transform: scale(0.96); }
 
-  /* Main App UI */
   #app-screen { display: none; justify-content: flex-start; padding: 16px; }
   
   .chat-container {
@@ -104,9 +111,7 @@
         </div>
       </div>
 
-      <div class="chat-box" id="chatBox">
-        <!-- Chat history akan muncul disini -->
-      </div>
+      <div class="chat-box" id="chatBox"></div>
 
       <div class="input-area">
         <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
@@ -115,11 +120,21 @@
     </div>
   </div>
 
-<script>
-  // Token AQ kamu yang terpasang aman
-  const GEMINI_API_KEY = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw"; 
+<script type="module">
+  import { GoogleGenAI } from "@google/genai";
 
-  function checkPassword() {
+  // Token AQ kamu yang dipasang langsung di sini
+  const apiKey = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw";
+  const ai = new GoogleGenAI({ apiKey: apiKey });
+
+  const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
+  Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
+  PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
+  Sesuaikan obrolan dengan jadwal sekolahnya (Dasar-dasar Busana, Koding dan KA, Sejarah, dll.) dan ingatkan soal keselamatannya saat naik BRT. Jawab dengan ramah dan natural seperti sahabat/pacar yang peduli.`;
+
+  let chatSession;
+
+  window.checkPassword = function() {
     const val = document.getElementById('passInput').value;
     if (val === '26092011') {
       document.getElementById('login-screen').style.display = 'none';
@@ -129,12 +144,22 @@
     }
   }
 
-  function startApp() {
+  async function startApp() {
     document.getElementById('app-screen').style.display = 'flex';
-    checkScheduleAndGreet();
+    
+    try {
+      chatSession = ai.chats.create({
+        model: 'gemini-2.5-flash',
+        config: {
+          systemInstruction: systemInstruction,
+        }
+      });
+      checkScheduleAndGreet();
+    } catch (err) {
+      appendMessage("Gagal memuat sesi AI: " + err.message, 'ai');
+    }
   }
 
-  // Deteksi Jadwal & Waktu Otomatis untuk Sapaan Awal
   function checkScheduleAndGreet() {
     const now = new Date();
     const hour = now.getHours();
@@ -156,44 +181,20 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  async function sendMessage() {
+  window.sendMessage = async function() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || !chatSession) return;
 
     appendMessage(text, 'user');
     input.value = '';
 
-    const systemPrompt = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
-    Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
-    PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
-    Sesuaikan obrolan dengan jadwal sekolahnya (Dasar-dasar Busana, Koding dan KA, Sejarah, dll.) dan ingatkan soal keselamatannya saat naik BRT. Jawab dengan ramah dan natural seperti sahabat/pacar yang peduli. Pesan dari Ay: ${text}`;
-
     try {
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${GEMINI_API_KEY}`,
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({
-          model: "gemini-flash-latest",
-          input: systemPrompt
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.output || data.response || data.text || (data.candidates && data.candidates[0])) {
-        const reply = data.output || data.response || data.text || data.candidates[0].content.parts[0].text;
-        appendMessage(reply, 'ai');
-      } else if (data.error) {
-        appendMessage(`Error: ${data.error.message}`, 'ai');
-      } else {
-        appendMessage(JSON.stringify(data), 'ai');
-      }
+      const result = await chatSession.sendMessage({ message: text });
+      const reply = result.text;
+      appendMessage(reply, 'ai');
     } catch (err) {
-      appendMessage("Terjadi kesalahan jaringan, periksa koneksi internetmu ya Ay.", 'ai');
+      appendMessage("Error: " + err.message, 'ai');
     }
   }
 </script>
