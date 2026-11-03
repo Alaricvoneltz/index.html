@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Seblak & Kuliner Tap</title>
+<title>Seblak Catch & Dodge</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   body {
     font-family: 'Space Grotesk', sans-serif;
-    background: radial-gradient(circle at center, #2e1065 0%, #09090b 100%);
+    background: radial-gradient(circle at center, #1e112a 0%, #09090b 100%);
     color: #fff;
     min-height: 100vh;
     display: flex;
@@ -23,237 +23,304 @@
   .game-card {
     width: 100%;
     max-width: 420px;
-    background: rgba(24, 24, 27, 0.9);
+    background: rgba(24, 24, 27, 0.95);
     border: 1px solid rgba(244, 63, 94, 0.3);
     border-radius: 20px;
-    padding: 20px;
+    padding: 16px;
     box-shadow: 0 0 30px rgba(244, 63, 94, 0.2);
     text-align: center;
-    backdrop-filter: blur(10px);
   }
 
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     color: #f43f5e;
     text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
-    margin-bottom: 4px;
-    letter-spacing: 1px;
+    margin-bottom: 2px;
   }
 
-  .subtitle {
-    font-size: 12px;
-    color: #fda4af;
-    margin-bottom: 12px;
-  }
+  .subtitle { font-size: 11px; color: #fda4af; margin-bottom: 10px; }
 
   .stats-bar {
     display: flex;
     justify-content: space-around;
     background: #09090b;
-    padding: 10px;
+    padding: 8px;
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     border: 1px solid #27272a;
   }
 
-  .stat-box { font-size: 12px; color: #a1a1aa; }
-  .stat-val { font-size: 18px; font-weight: 700; color: #fbbf24; display: block; }
+  .stat-box { font-size: 11px; color: #a1a1aa; }
+  .stat-val { font-size: 16px; font-weight: 700; color: #fbbf24; display: block; }
 
-  #game-board {
+  #canvas-container {
+    position: relative;
     width: 100%;
-    height: 320px;
+    height: 340px;
     background: #0d0e15;
     border-radius: 14px;
-    position: relative;
     overflow: hidden;
-    border: 2px dashed rgba(244, 63, 94, 0.4);
+    border: 2px solid rgba(244, 63, 94, 0.4);
+    touch-action: none;
   }
 
-  #target {
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid #f43f5e;
-    box-shadow: 0 0 15px rgba(244, 63, 94, 0.5);
-    position: absolute;
-    display: none;
+  canvas { width: 100%; height: 100%; display: block; }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .btn-ctrl {
+    flex: 1;
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    color: white;
+    padding: 14px;
+    font-size: 18px;
+    border-radius: 12px;
     cursor: pointer;
     touch-action: manipulation;
-    font-size: 34px;
-    line-height: 60px;
-    text-align: center;
-    transition: transform 0.1s;
   }
+  .btn-ctrl:active { background: #f43f5e; }
 
-  #target:active { transform: scale(0.85); }
-
-  .btn {
+  .btn-start {
     background: linear-gradient(135deg, #f43f5e, #e11d48);
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px;
     font-size: 15px;
     font-weight: 700;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 16px;
+    margin-top: 12px;
     width: 100%;
     box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
-    transition: 0.2s;
   }
-
-  .btn:active { transform: scale(0.97); }
 
   #overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(9, 9, 11, 0.88);
+    background: rgba(9, 9, 11, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 14px;
-    padding: 10px;
+    padding: 15px;
   }
-
   #overlay h2 { font-size: 20px; color: #fbbf24; margin-bottom: 6px; }
-  #overlay p { font-size: 13px; color: #fda4af; }
-
-  .food-label {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: #fbbf24;
-    font-weight: bold;
-    background: rgba(0,0,0,0.6);
-    padding: 3px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(251, 191, 36, 0.3);
-  }
+  #overlay p { font-size: 12px; color: #fda4af; text-align: center; line-height: 1.5; }
 </style>
 </head>
 <body>
 
 <div class="game-card">
-  <h1>🍲 SEBLAK & KULINER TAP</h1>
-  <div class="subtitle">Tangkap Makanan Pedas & Segar!</div>
+  <h1>🍲 SEBLAK RUNNER</h1>
+  <div class="subtitle">Tangkap Kuliner & Hindari Bom!</div>
   
   <div class="stats-bar">
     <div class="stat-box">Skor<span id="score" class="stat-val">0</span></div>
-    <div class="stat-box">Waktu<span id="timer" class="stat-val">20s</span></div>
+    <div class="stat-box">Nyawa<span id="lives" class="stat-val">❤️❤️❤️</span></div>
     <div class="stat-box">Rekor<span id="highscore" class="stat-val">0</span></div>
   </div>
 
-  <div id="game-board">
-    <div id="target">🍲</div>
-    <div id="food-label" class="food-label" style="display:none;">Seblak Pedas</div>
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
     <div id="overlay">
-      <h2>SIAP BERBURU KULINER?</h2>
-      <p>Tap Seblak, Semangka & Jajanan Khas!</p>
+      <h2>CARA MAIN</h2>
+      <p>Geser layar / tombol bawah untuk menggerakkan Mangkuk.<br>Tangkap 🍲 🍉 🧋 🌶️ dan <b>HINDARI 💣 BOM!</b></p>
+      <button class="btn-start" onclick="startGame()">MULAI MAIN</button>
     </div>
   </div>
 
-  <button class="btn" id="start-btn" onclick="startGame()">MULAI BERBURU</button>
+  <div class="controls">
+    <button class="btn-ctrl" id="btn-left">◀ KIRI</button>
+    <button class="btn-ctrl" id="btn-right">KANAN ▶</button>
+  </div>
 </div>
 
 <script>
-  // Daftar Makanan & Poinnya
-  const foods = [
-    { icon: '🍲', name: 'Seblak Pedas (+1)', pts: 1 },
-    { icon: '🍉', name: 'Semangka Segar (+1)', pts: 1 },
-    { icon: '🧋', name: 'Es Teh Manis (+1)', pts: 1 },
-    { icon: '🍡', name: 'Bakso Colok (+1)', pts: 1 },
-    { icon: '🍜', name: 'Mie Setan (+1)', pts: 1 },
-    { icon: '🌶️', name: 'Cabe Rawit BONUS (+3)', pts: 3 }
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  
+  let animationId;
+  let score = 0;
+  let lives = 3;
+  let highScore = localStorage.getItem('seblak_catcher_hs') || 0;
+  let isPlaying = false;
+
+  document.getElementById('highscore').innerText = highScore;
+
+  // Ukuran Canvas
+  function resizeCanvas() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+  }
+  resizeCanvas();
+
+  // Pemain (Mangkuk)
+  const player = {
+    width: 60,
+    height: 30,
+    x: canvas.width / 2 - 30,
+    y: canvas.height - 40,
+    speed: 7,
+    dx: 0
+  };
+
+  // Item Jatuh
+  const itemTypes = [
+    { icon: '🍲', pts: 10, isBomb: false },
+    { icon: '🍉', pts: 10, isBomb: false },
+    { icon: '🧋', pts: 10, isBomb: false },
+    { icon: '🌶️', pts: 25, isBomb: false },
+    { icon: '💣', pts: 0,  isBomb: true }
   ];
 
-  let score = 0;
-  let timeLeft = 20;
-  let gameTimer = null;
-  let currentFood = foods[0];
-  let highScore = localStorage.getItem('seblak_tap_hs') || 0;
-  
-  const target = document.getElementById('target');
-  const board = document.getElementById('game-board');
-  const scoreEl = document.getElementById('score');
-  const timerEl = document.getElementById('timer');
-  const hsEl = document.getElementById('highscore');
-  const overlay = document.getElementById('overlay');
-  const startBtn = document.getElementById('start-btn');
-  const foodLabel = document.getElementById('food-label');
+  let items = [];
+  let spawnCounter = 0;
 
-  hsEl.innerText = highScore;
-
-  function moveTarget() {
-    const maxX = board.clientWidth - 70;
-    const maxY = board.clientHeight - 70;
-    const randomX = Math.floor(Math.random() * maxX);
-    const randomY = Math.floor(Math.random() * maxY);
-    
-    // Pilih makanan acak
-    currentFood = foods[Math.floor(Math.random() * foods.length)];
-    target.innerText = currentFood.icon;
-    foodLabel.innerText = currentFood.name;
-
-    target.style.left = randomX + 'px';
-    target.style.top = randomY + 'px';
+  function spawnItem() {
+    const randomType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+    items.push({
+      x: Math.random() * (canvas.width - 30),
+      y: -30,
+      size: 28,
+      speed: 2.5 + Math.random() * 2 + (score * 0.05),
+      ...randomType
+    });
   }
 
-  function hitTarget() {
-    score += currentFood.pts;
-    scoreEl.innerText = score;
-    moveTarget();
-  }
-
-  target.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    hitTarget();
+  // Kontrol Layar Sentuh Drag
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isPlaying) return;
+    const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+    player.x = touchX - player.width / 2;
   });
-  target.addEventListener('click', hitTarget);
+
+  // Kontrol Tombol Kiri Kanan
+  const btnLeft = document.getElementById('btn-left');
+  const btnRight = document.getElementById('btn-right');
+
+  btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); player.dx = -player.speed; });
+  btnLeft.addEventListener('touchend', () => { player.dx = 0; });
+  btnLeft.addEventListener('mousedown', () => { player.dx = -player.speed; });
+  btnLeft.addEventListener('mouseup', () => { player.dx = 0; });
+
+  btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); player.dx = player.speed; });
+  btnRight.addEventListener('touchend', () => { player.dx = 0; });
+  btnRight.addEventListener('mousedown', () => { player.dx = player.speed; });
+  btnRight.addEventListener('mouseup', () => { player.dx = 0; });
+
+  function update() {
+    if (!isPlaying) return;
+
+    // Gerak pemain
+    player.x += player.dx;
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+    // Spawn item berkala
+    spawnCounter++;
+    if (spawnCounter % 35 === 0) {
+      spawnItem();
+    }
+
+    // Update item
+    for (let i = items.length - 1; i >= 0; i--) {
+      let item = items[i];
+      item.y += item.speed;
+
+      // Cek Tabrakan dengan Mangkuk
+      if (
+        item.y + item.size >= player.y &&
+        item.x + item.size >= player.x &&
+        item.x <= player.x + player.width
+      ) {
+        if (item.isBomb) {
+          lives--;
+          updateLives();
+          if (lives <= 0) endGame();
+        } else {
+          score += item.pts;
+          document.getElementById('score').innerText = score;
+        }
+        items.splice(i, 1);
+        continue;
+      }
+
+      // Hapus jika keluar bawah
+      if (item.y > canvas.height) {
+        if (!item.isBomb) {
+          // Makanan luput (opsional: tidak mengurangi nyawa)
+        }
+        items.splice(i, 1);
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Gambar Mangkuk
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.roundRect(player.x, player.y, player.width, player.height, [0, 0, 15, 15]);
+    ctx.fill();
+    ctx.font = '16px sans-serif';
+    ctx.fillText('🥣', player.x + 18, player.y + 20);
+
+    // Gambar Item Jatuh
+    for (let item of items) {
+      ctx.font = `${item.size}px sans-serif`;
+      ctx.fillText(item.icon, item.x, item.y);
+    }
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    if (isPlaying) {
+      animationId = requestAnimationFrame(gameLoop);
+    }
+  }
+
+  function updateLives() {
+    let heartStr = '';
+    for (let i = 0; i < lives; i++) heartStr += '❤️';
+    document.getElementById('lives').innerText = heartStr || '💀';
+  }
 
   function startGame() {
+    resizeCanvas();
     score = 0;
-    timeLeft = 20;
-    scoreEl.innerText = score;
-    timerEl.innerText = timeLeft + 's';
+    lives = 3;
+    items = [];
+    isPlaying = true;
     
+    document.getElementById('score').innerText = '0';
+    updateLives();
     overlay.style.display = 'none';
-    target.style.display = 'block';
-    foodLabel.style.display = 'block';
-    startBtn.style.display = 'none';
-    
-    moveTarget();
 
-    clearInterval(gameTimer);
-    gameTimer = setInterval(() => {
-      timeLeft--;
-      timerEl.innerText = timeLeft + 's';
-
-      if (timeLeft <= 0) {
-        endGame();
-      }
-    }, 1000);
+    cancelAnimationFrame(animationId);
+    gameLoop();
   }
 
   function endGame() {
-    clearInterval(gameTimer);
-    target.style.display = 'none';
-    foodLabel.style.display = 'none';
-    overlay.style.display = 'flex';
-    startBtn.style.display = 'block';
-    startBtn.innerText = 'MAIN LAGI';
+    isPlaying = false;
+    cancelAnimationFrame(animationId);
 
     if (score > highScore) {
       highScore = score;
-      localStorage.setItem('seblak_tap_hs', highScore);
-      hsEl.innerText = highScore;
-      overlay.innerHTML = `<h2>🎉 JURAGAN KULINER!</h2><p>Rekor Baru! Skor: <b>${score}</b></p>`;
+      localStorage.setItem('seblak_catcher_hs', highScore);
+      document.getElementById('highscore').innerText = highScore;
+      overlay.innerHTML = `<h2>🎉 REKOR BARU!</h2><p>Skor Akhir: <b>${score}</b></p><button class="btn-start" onclick="startGame()">MAIN LAGI</button>`;
     } else {
-      overlay.innerHTML = `<h2>WAKTU HABIS!</h2><p>Skor Kuliner Kamu: <b>${score}</b></p>`;
+      overlay.innerHTML = `<h2>💥 GAME OVER!</h2><p>Skor Kamu: <b>${score}</b></p><button class="btn-start" onclick="startGame()">COBA LAGI</button>`;
     }
+    overlay.style.display = 'flex';
   }
 </script>
 
