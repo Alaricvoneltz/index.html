@@ -3,525 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Culinary Roguelite - Random Arena</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet">
+<title>Alaric Vault | Roblox Script Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-  body, html {
-    width: 100%; height: 100%;
-    background: #030712; color: #fff;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
     font-family: 'Space Grotesk', sans-serif;
-    overflow: hidden;
+    background: radial-gradient(circle at top, #111827 0%, #030712 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    padding: 20px 14px 40px 14px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  /* Header & Profile */
+  .profile {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .avatar-box {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px auto;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, #a855f7, #3b82f6);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+  .avatar-img {
+    width: 100%; height: 100%;
+    border-radius: 50%; object-fit: cover;
+    background: #0f172a; border: 2px solid #030712;
+  }
+  .profile h1 {
+    font-size: 22px; font-weight: 700; color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .profile p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+  /* Search Bar */
+  .search-box {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .search-input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px 12px 42px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: 0.2s;
+  }
+  .search-input:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+  }
+  .search-icon {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: #64748b; font-size: 14px;
+  }
+
+  /* Section Titles */
+  .section-label {
+    font-size: 12px; font-weight: 700;
+    color: #38bdf8; text-transform: uppercase;
+    letter-spacing: 1px; margin: 24px 0 12px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Script Cards */
+  .script-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(8px);
+    transition: 0.2s;
+  }
+  .script-card:hover { border-color: rgba(168, 85, 247, 0.4); }
+
+  .card-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 6px;
+  }
+  .game-tag {
+    font-size: 11px; font-weight: 700; color: #c084fc;
+    text-transform: uppercase;
+  }
+  .badge {
+    font-size: 9px; font-weight: 700;
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .badge-working { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .badge-updated { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+  .script-title { font-size: 15px; color: #fff; margin-bottom: 4px; font-weight: 700; }
+  .script-desc { font-size: 11px; color: #94a3b8; margin-bottom: 10px; line-height: 1.4; }
+
+  /* Code Container & Button */
+  .code-box {
+    background: #090d16;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 8px;
+  }
+  .code-text {
+    font-family: monospace; font-size: 10px; color: #38bdf8;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .btn-copy {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: white; border: none; border-radius: 6px;
+    padding: 6px 12px; font-size: 11px; font-weight: 700;
+    cursor: pointer; flex-shrink: 0; transition: 0.2s;
+  }
+  .btn-copy:active { transform: scale(0.95); }
+
+  /* Links & Community */
+  .link-btn {
+    display: flex; align-items: center;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px; padding: 12px 14px;
+    color: #fff; text-decoration: none;
+    margin-bottom: 10px; transition: 0.2s;
+  }
+  .link-btn:hover {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.4);
+  }
+  .icon-box {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
     display: flex; justify-content: center; align-items: center;
+    margin-right: 12px; color: #c084fc; font-size: 16px;
   }
+  .link-text { flex-grow: 1; font-size: 13px; font-weight: 600; }
 
-  #game-container {
-    position: relative; width: 100%; height: 100%;
-    max-width: 480px; background: #090d16;
-    display: flex; flex-direction: column;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
-  }
-
-  /* HUD */
-  .hud {
-    height: 54px; background: rgba(15, 23, 42, 0.9);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 16px; z-index: 10;
-  }
-  .hud-box { display: flex; flex-direction: column; }
-  .hud-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
-  .hud-val { font-size: 16px; font-weight: 900; color: #38bdf8; }
-
-  .hp-bar {
-    width: 90px; height: 10px; background: #1e293b;
-    border-radius: 5px; overflow: hidden; border: 1px solid #475569; margin-top: 2px;
-  }
-  .hp-fill { width: 100%; height: 100%; background: #22c55e; transition: width 0.2s; }
-
-  /* Canvas */
-  #canvas-wrapper { flex: 1; position: relative; width: 100%; }
-  canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-
-  /* Overlay UI */
-  .overlay {
-    position: absolute; inset: 0; background: rgba(9, 13, 22, 0.92);
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 20; padding: 20px; text-align: center; backdrop-filter: blur(8px);
-  }
-  .overlay h1 { font-size: 26px; color: #f43f5e; margin-bottom: 6px; font-weight: 900; }
-  .overlay p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
-
-  .btn-start {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white; border: none; padding: 14px 32px;
-    border-radius: 12px; font-size: 16px; font-weight: 900; cursor: pointer;
-    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4);
-  }
-
-  /* Perk Selection Modal (Pilih Skill Roguelite) */
-  .perk-container {
-    display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; margin-top: 15px;
-  }
-  .perk-card {
-    background: #1e293b; border: 2px solid #3b82f6; border-radius: 12px;
-    padding: 12px; display: flex; align-items: center; gap: 12px;
-    cursor: pointer; text-align: left; transition: 0.2s;
-  }
-  .perk-card:active { transform: scale(0.96); background: #2563eb; }
-  .perk-icon { font-size: 28px; }
-  .perk-title { font-size: 14px; font-weight: 700; color: #f8fafc; }
-  .perk-desc { font-size: 11px; color: #94a3b8; }
+  .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #475569; }
 </style>
 </head>
 <body>
 
-<div id="game-container">
-  <!-- HUD Top Bar -->
-  <div class="hud">
-    <div class="hud-box">
-      <div class="hud-label">DARAH CHEF</div>
-      <div class="hp-bar"><div id="hp-fill" class="hp-fill"></div></div>
-    </div>
-    <div class="hud-box" style="text-align: center;">
-      <div class="hud-label">ARENA / FLOOR</div>
-      <div id="floor-val" class="hud-val" style="color:#fbbf24;">STAGE 1</div>
-    </div>
-    <div class="hud-box" style="text-align: right;">
-      <div class="hud-label">TEMA ARENA</div>
-      <div id="theme-name" class="hud-val" style="font-size:12px; color:#a78bfa;">Seblak Pedas</div>
-    </div>
-  </div>
-
-  <!-- Arena Game -->
-  <div id="canvas-wrapper">
-    <canvas id="canvas"></canvas>
-
-    <!-- Overlay Start -->
-    <div id="screen-start" class="overlay">
-      <h1>CULINARY ROGUELITE ⚔️</h1>
-      <p>Tiap lantai arena di-generate acak!<br>Geser layar untuk bergerak. Kapal akan otomatis menembaki musuh terdekat.</p>
-      <button class="btn-start" onclick="startGame()">MASUK ARENA 1</button>
+  <div class="container">
+    
+    <!-- Profile -->
+    <div class="profile">
+      <div class="avatar-box">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alaric" alt="Avatar" class="avatar-img">
+      </div>
+      <h1>ALARIC VAULT</h1>
+      <p>Official Roblox Script Suite & Open Source Hub</p>
     </div>
 
-    <!-- Overlay Choose Perk (Antar Arena) -->
-    <div id="screen-perk" class="overlay" style="display:none;">
-      <h1 style="color:#38bdf8; font-size:22px;">ARENA CLEARED! 🎉</h1>
-      <p style="margin-bottom:10px;">Pilih 1 Skill Bonus untuk Arena Selanjutnya:</p>
-      <div class="perk-container" id="perk-list"></div>
+    <!-- Search Input -->
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="searchInput" class="search-input" placeholder="Cari script atau nama game..." onkeyup="filterScripts()">
     </div>
 
-    <!-- Overlay Game Over -->
-    <div id="screen-gameover" class="overlay" style="display:none;">
-      <h1 style="color:#ef4444;">TERKAPAR DI ARENA 💀</h1>
-      <p>Kamu gugur di <b id="final-stage" style="color:#fbbf24;">Stage 1</b></p>
-      <button class="btn-start" onclick="startGame()">COBA LAGI</button>
-    </div>
-  </div>
-</div>
+    <!-- SECTION 1: SCRIPTS -->
+    <div class="section-label"><i class="fa-solid fa-terminal"></i> Roblox Scripts</div>
 
-<script>
-  // Web Audio Synth
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+    <div id="scriptList">
 
-  function playSFX(type) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    const now = audioCtx.currentTime;
-
-    if (type === 'shoot') {
-      osc.type = 'square'; osc.frequency.setValueAtTime(500, now);
-      osc.frequency.exponentialRampToValueAtTime(150, now + 0.06);
-      gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
-      osc.start(now); osc.stop(now + 0.06);
-    } else if (type === 'hit') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
-      gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-      osc.start(now); osc.stop(now + 0.15);
-    }
-  }
-
-  // Setup Canvas
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const wrapper = document.getElementById('canvas-wrapper');
-
-  function resize() {
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  // Tema Arena yang Berbeda-beda
-  const ARENA_THEMES = [
-    { name: '🍲 Kawah Seblak', bg: '#1c0a0a', wall: '#ef4444', border: '#7f1d1d' },
-    { name: '🍉 Es Semangka',  bg: '#061a12', wall: '#22c55e', border: '#14532d' },
-    { name: '🥭 Kebun Mangga', bg: '#1c160c', wall: '#eab308', border: '#713f12' },
-    { name: '🧋 Labirin Boba',  bg: '#140c1c', wall: '#a855f7', border: '#581c87' }
-  ];
-
-  // List Skill Roguelite
-  const ALL_PERKS = [
-    { id: 'multishot', icon: '🏹', title: 'Double Shot', desc: 'Menembakkan 2 peluru sekaligus' },
-    { id: 'atk_up',    icon: '⚔️', title: 'Pedas Max',    desc: 'Meningkatkan Kerusakan +40%' },
-    { id: 'speed_up',  icon: '⚡', title: 'Sepatu Gesit', desc: 'Kecepatan Jalan +30%' },
-    { id: 'heal',      icon: '❤️', title: 'Jus Pulih',    desc: 'Pulihkan 50% Darah Saat Ini' },
-    { id: 'fire_rate', icon: '🔥', title: 'Tembak Cepat', desc: 'Kecepatan Tembak +35%' }
-  ];
-
-  // Game Variables
-  let isPlaying = false;
-  let stage = 1;
-  let currentTheme = ARENA_THEMES[0];
-  let touchTarget = null;
-
-  // Player Stats
-  let player = {
-    x: 0, y: 0, radius: 14,
-    hp: 100, maxHp: 100, speed: 3.5,
-    dmg: 20, fireInterval: 280, lastShot: 0,
-    hasDoubleShot: false
-  };
-
-  let obstacles = [];
-  let enemies = [];
-  let bullets = [];
-  let enemyBullets = [];
-
-  // Controls - Touch Drag
-  canvas.addEventListener('touchstart', (e) => {
-    if (!isPlaying) return;
-    const rect = canvas.getBoundingClientRect();
-    touchTarget = { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-  });
-  canvas.addEventListener('touchmove', (e) => {
-    if (!isPlaying) return;
-    const rect = canvas.getBoundingClientRect();
-    touchTarget = { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-  });
-  canvas.addEventListener('touchend', () => { touchTarget = null; });
-
-  // GENERATOR ARENA ACAK (Procedural Generation)
-  function generateRandomArena() {
-    obstacles = [];
-    enemies = [];
-    bullets = [];
-    enemyBullets = [];
-
-    // Pilih Tema Acak
-    currentTheme = ARENA_THEMES[Math.floor(Math.random() * ARENA_THEMES.length)];
-    document.getElementById('theme-name').innerText = currentTheme.name;
-    document.getElementById('theme-name').style.color = currentTheme.wall;
-
-    // Reset posisi Player ke bawah tengah
-    player.x = canvas.width / 2;
-    player.y = canvas.height - 60;
-
-    // Buat Rintangan Tembok Acak (Random Block Grid)
-    const cols = 6;
-    const rows = 8;
-    const cellW = canvas.width / cols;
-    const cellH = canvas.height / rows;
-
-    for (let r = 1; r < rows - 2; r++) {
-      for (let c = 0; c < cols; c++) {
-        // Peluang 25% petak menjadi tembok rintangan
-        if (Math.random() < 0.25) {
-          obstacles.push({
-            x: c * cellW + 4,
-            y: r * cellH + 4,
-            w: cellW - 8,
-            h: cellH - 8
-          });
-        }
-      }
-    }
-
-    // Spawn Musuh Acak di area atas
-    const enemyCount = 3 + Math.floor(stage * 1.5);
-    for (let i = 0; i < enemyCount; i++) {
-      let enemyX, enemyY, collision;
-      // Pastikan spawn tidak di dalam tembok
-      do {
-        collision = false;
-        enemyX = Math.random() * (canvas.width - 60) + 30;
-        enemyY = Math.random() * (canvas.height / 2) + 40;
-        for (let obs of obstacles) {
-          if (enemyX > obs.x && enemyX < obs.x + obs.w && enemyY > obs.y && enemyY < obs.y + obs.h) {
-            collision = true; break;
-          }
-        }
-      } while (collision);
-
-      enemies.push({
-        x: enemyX, y: enemyY, radius: 14,
-        hp: 40 + (stage * 15), maxHp: 40 + (stage * 15),
-        speed: 1 + Math.random() * 1.2,
-        icon: ['👾', '👹', '👺', '👻'][Math.floor(Math.random() * 4)],
-        lastShot: Date.now() + Math.random() * 1000
-      });
-    }
-  }
-
-  function autoShoot() {
-    if (enemies.length === 0) return;
-    const now = Date.now();
-    if (now - player.lastShot < player.fireInterval) return;
-
-    // Cari Musuh Terdekat
-    let closest = null;
-    let minDist = 9999;
-    enemies.forEach(e => {
-      const dist = Math.hypot(e.x - player.x, e.y - player.y);
-      if (dist < minDist) { minDist = dist; closest = e; }
-    });
-
-    if (closest) {
-      player.lastShot = now;
-      playSFX('shoot');
-      const angle = Math.atan2(closest.y - player.y, closest.x - player.x);
-      
-      bullets.push({
-        x: player.x, y: player.y,
-        vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8,
-        dmg: player.dmg
-      });
-
-      if (player.hasDoubleShot) {
-        bullets.push({
-          x: player.x, y: player.y,
-          vx: Math.cos(angle + 0.2) * 8, vy: Math.sin(angle + 0.2) * 8,
-          dmg: player.dmg
-        });
-      }
-    }
-  }
-
-  function update() {
-    if (!isPlaying) return;
-
-    // Pergerakan Player (Sentuhan/Drag)
-    if (touchTarget) {
-      const dist = Math.hypot(touchTarget.x - player.x, touchTarget.y - player.y);
-      if (dist > 5) {
-        const angle = Math.atan2(touchTarget.y - player.y, touchTarget.x - player.x);
-        let nextX = player.x + Math.cos(angle) * player.speed;
-        let nextY = player.y + Math.sin(angle) * player.speed;
-
-        // Tabrakan Player dengan Tembok
-        let canMoveX = true, canMoveY = true;
-        obstacles.forEach(obs => {
-          if (nextX + player.radius > obs.x && nextX - player.radius < obs.x + obs.w &&
-              player.y + player.radius > obs.y && player.y - player.radius < obs.y + obs.h) canMoveX = false;
-          if (player.x + player.radius > obs.x && player.x - player.radius < obs.x + obs.w &&
-              nextY + player.radius > obs.y && nextY - player.radius < obs.y + obs.h) canMoveY = false;
-        });
-
-        if (canMoveX) player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, nextX));
-        if (canMoveY) player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, nextY));
-      }
-    }
-
-    autoShoot();
-
-    // Peluru Player
-    for (let i = bullets.length - 1; i >= 0; i--) {
-      let b = bullets[i];
-      b.x += b.vx; b.y += b.vy;
-
-      // Hit Tembok
-      let hitWall = false;
-      obstacles.forEach(obs => {
-        if (b.x > obs.x && b.x < obs.x + obs.w && b.y > obs.y && b.y < obs.y + obs.h) hitWall = true;
-      });
-      if (hitWall || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
-        bullets.splice(i, 1); continue;
-      }
-
-      // Hit Musuh
-      for (let j = enemies.length - 1; j >= 0; j--) {
-        let e = enemies[j];
-        if (Math.hypot(e.x - b.x, e.y - b.y) < e.radius + 4) {
-          e.hp -= b.dmg;
-          bullets.splice(i, 1);
-          if (e.hp <= 0) enemies.splice(j, 1);
-          break;
-        }
-      }
-    }
-
-    // Pergerakan & Serangan Musuh
-    enemies.forEach(e => {
-      const angle = Math.atan2(player.y - e.y, player.x - e.x);
-      e.x += Math.cos(angle) * e.speed;
-      e.y += Math.sin(angle) * e.speed;
-
-      // Musuh Menembak Berkala
-      if (Date.now() - e.lastShot > 2200) {
-        e.lastShot = Date.now();
-        enemyBullets.push({
-          x: e.x, y: e.y,
-          vx: Math.cos(angle) * 4, vy: Math.sin(angle) * 4
-        });
-      }
-
-      // Tabrakan Musuh ke Player
-      if (Math.hypot(player.x - e.x, player.y - e.y) < player.radius + e.radius) {
-        player.hp -= 0.5;
-        updateHUD();
-        if (player.hp <= 0) gameOver();
-      }
-    });
-
-    // Peluru Musuh
-    for (let i = enemyBullets.length - 1; i >= 0; i--) {
-      let eb = enemyBullets[i];
-      eb.x += eb.vx; eb.y += eb.vy;
-
-      if (Math.hypot(player.x - eb.x, player.y - eb.y) < player.radius + 4) {
-        player.hp -= 12;
-        playSFX('hit');
-        enemyBullets.splice(i, 1);
-        updateHUD();
-        if (player.hp <= 0) gameOver();
-        continue;
-      }
-
-      if (eb.x < 0 || eb.x > canvas.width || eb.y < 0 || eb.y > canvas.height) {
-        enemyBullets.splice(i, 1);
-      }
-    }
-
-    // Cek Cleared Arena
-    if (enemies.length === 0) {
-      openPerkMenu();
-    }
-  }
-
-  function draw() {
-    // Draw Background Tema
-    ctx.fillStyle = currentTheme.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw Tembok/Rintangan Acak
-    ctx.fillStyle = currentTheme.wall;
-    ctx.strokeStyle = currentTheme.border;
-    ctx.lineWidth = 3;
-    obstacles.forEach(obs => {
-      ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-      ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
-    });
-
-    // Draw Player
-    ctx.fillStyle = '#38bdf8';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('👨‍🍳', player.x, player.y);
-
-    // Draw Peluru Player
-    ctx.fillStyle = '#fbbf24';
-    bullets.forEach(b => {
-      ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
-    });
-
-    // Draw Peluru Musuh
-    ctx.fillStyle = '#ef4444';
-    enemyBullets.forEach(eb => {
-      ctx.beginPath(); ctx.arc(eb.x, eb.y, 4, 0, Math.PI * 2); ctx.fill();
-    });
-
-    // Draw Musuh
-    enemies.forEach(e => {
-      ctx.font = `${e.radius * 1.8}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(e.icon, e.x, e.y);
-      // Darah Musuh
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(e.x - 12, e.y - 18, Math.max(0, (e.hp / e.maxHp)) * 24, 3);
-    });
-  }
-
-  function loop() {
-    update();
-    draw();
-    if (isPlaying) requestAnimationFrame(loop);
-  }
-
-  function updateHUD() {
-    const hpPct = Math.max(0, (player.hp / player.maxHp) * 100);
-    document.getElementById('hp-fill').style.width = hpPct + '%';
-    document.getElementById('floor-val').innerText = `STAGE ${stage}`;
-  }
-
-  function openPerkMenu() {
-    isPlaying = false;
-    const listEl = document.getElementById('perk-list');
-    listEl.innerHTML = '';
-
-    // Acak 3 Perk
-    const shuffled = [...ALL_PERKS].sort(() => 0.5 - Math.random()).slice(0, 3);
-    shuffled.forEach(perk => {
-      const card = document.createElement('div');
-      card.className = 'perk-card';
-      card.innerHTML = `
-        <div class="perk-icon">${perk.icon}</div>
-        <div>
-          <div class="perk-title">${perk.title}</div>
-          <div class="perk-desc">${perk.desc}</div>
+      <!-- Script Item 1 -->
+      <div class="script-card" data-title="alaric hub universal esp walkspeed infinite jump">
+        <div class="card-header">
+          <span class="game-tag">Universal</span>
+          <span class="badge badge-working">WORKING</span>
         </div>
-      `;
-      card.onclick = () => selectPerk(perk.id);
-      listEl.appendChild(card);
-    });
+        <div class="script-title">Alaric Hub v1.0</div>
+        <div class="script-desc">Universal UI Library: ESP Player, WalkSpeed slider, Teleport & Fly tool.</div>
+        <div class="code-box">
+          <span class="code-text" id="code1">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Alaricgui-/main/script.lua"))()</span>
+          <button class="btn-copy" onclick="copyCode('code1', this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </div>
 
-    document.getElementById('screen-perk').style.display = 'flex';
-  }
+      <!-- Script Item 2 -->
+      <div class="script-card" data-title="grow a garden 2 auto farm harvest sell">
+        <div class="card-header">
+          <span class="game-tag">Grow a Garden 2</span>
+          <span class="badge badge-working">WORKING</span>
+        </div>
+        <div class="script-title">Auto Farm & Instant Harvest</div>
+        <div class="script-desc">Auto plant, auto harvest, instant sell crops, & unlimited water refill.</div>
+        <div class="code-box">
+          <span class="code-text" id="code2">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Game/main/garden2.lua"))()</span>
+          <button class="btn-copy" onclick="copyCode('code2', this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </div>
 
-  function selectPerk(id) {
-    if (id === 'multishot') player.hasDoubleShot = true;
-    if (id === 'atk_up') player.dmg *= 1.4;
-    if (id === 'speed_up') player.speed *= 1.3;
-    if (id === 'heal') player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.5);
-    if (id === 'fire_rate') player.fireInterval *= 0.65;
+      <!-- Script Item 3 -->
+      <div class="script-card" data-title="the hollow floor auto win badge sniper dvdplayer">
+        <div class="card-header">
+          <span class="game-tag">The Hollow</span>
+          <span class="badge badge-updated">UPDATED</span>
+        </div>
+        <div class="script-title">Floor Auto Win & Item Finder</div>
+        <div class="script-desc">Auto complete floor, badge sniper, & target DVDPlayer ESP finder.</div>
+        <div class="code-box">
+          <span class="code-text" id="code3">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Game/main/hollow.lua"))()</span>
+          <button class="btn-copy" onclick="copyCode('code3', this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </div>
 
-    stage++;
-    document.getElementById('screen-perk').style.display = 'none';
-    generateRandomArena();
-    updateHUD();
-    isPlaying = true;
-    loop();
-  }
+    </div>
 
-  function startGame() {
-    initAudio();
-    stage = 1;
-    player.hp = 100; player.maxHp = 100; player.dmg = 20; player.speed = 3.5;
-    player.fireInterval = 280; player.hasDoubleShot = false;
+    <!-- SECTION 2: LINKS -->
+    <div class="section-label"><i class="fa-solid fa-users"></i> Community & Source</div>
 
-    document.getElementById('screen-start').style.display = 'none';
-    document.getElementById('screen-gameover').style.display = 'none';
-    document.getElementById('screen-perk').style.display = 'none';
+    <a href="https://discord.gg" target="_blank" class="link-btn">
+      <div class="icon-box"><i class="fa-brands fa-discord"></i></div>
+      <div class="link-text">Rongawi Empire Discord</div>
+      <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#475569;"></i>
+    </a>
 
-    generateRandomArena();
-    updateHUD();
-    isPlaying = true;
-    loop();
-  }
+    <a href="https://github.com/Alaricvoneltz" target="_blank" class="link-btn">
+      <div class="icon-box"><i class="fa-brands fa-github"></i></div>
+      <div class="link-text">GitHub Profile</div>
+      <i class="fa-solid fa-chevron-right" style="font-size:10px; color:#475569;"></i>
+    </a>
 
-  function gameOver() {
-    isPlaying = false;
-    document.getElementById('final-stage').innerText = `Stage ${stage}`;
-    document.getElementById('screen-gameover').style.display = 'flex';
-  }
-</script>
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2026 Alaric Vault. All rights reserved.</p>
+    </div>
+
+  </div>
+
+  <script>
+    // Copy Function
+    function copyCode(elementId, button) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        button.style.background = '#22c55e';
+        setTimeout(() => {
+          button.innerHTML = originalHtml;
+          button.style.background = 'linear-gradient(135deg, #8b5cf6, #6366f1)';
+        }, 1800);
+      });
+    }
+
+    // Live Search Filter
+    function filterScripts() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.script-card');
+
+      cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        if (title.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
