@@ -1,202 +1,103 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>For You, Ay 🌸</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Load SDK Resmi Google Gen AI yang mendukung token AQ -->
-<script type="importmap">
-  {
-    "imports": {
-      "@google/genai": "https://esm.run/@google/genai"
-    }
-  }
-</script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body, html {
-    width: 100%; height: 100%;
-    background: #0f172a; color: #f8fafc;
-    font-family: 'Space Grotesk', sans-serif;
-    overflow: hidden;
-  }
-
-  .screen {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    padding: 24px; text-align: center; background: #0f172a; z-index: 10;
-  }
-
-  h1 { font-size: 24px; color: #f43f5e; margin-bottom: 8px; font-weight: 700; }
-  p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
-
-  input, textarea {
-    width: 100%; max-width: 320px;
-    background: #1e293b; border: 1px solid #334155;
-    color: #fff; padding: 12px 16px; border-radius: 12px;
-    font-family: inherit; font-size: 14px; outline: none; margin-bottom: 12px;
-    text-align: center;
-  }
-
-  .btn {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white; border: none; padding: 12px 28px; border-radius: 12px;
-    font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); width: 100%; max-width: 320px;
-  }
-  .btn:active { transform: scale(0.96); }
-
-  #app-screen { display: none; justify-content: flex-start; padding: 16px; }
-  
-  .chat-container {
-    width: 100%; max-width: 480px; height: 100%;
-    margin: 0 auto; display: flex; flex-direction: column;
-  }
-
-  .header-card {
-    background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08);
-    padding: 14px; border-radius: 16px; display: flex; align-items: center; gap: 12px;
-    margin-bottom: 12px; backdrop-filter: blur(8px);
-  }
-  .mascot-avatar {
-    width: 45px; height: 45px; border-radius: 50%; background: #f43f5e;
-    display: flex; justify-content: center; align-items: center; font-size: 22px;
-    box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
-  }
-  .mascot-info h3 { font-size: 14px; color: #fff; }
-  .mascot-info p { font-size: 11px; color: #38bdf8; margin: 0; text-align: left; }
-
-  .chat-box {
-    flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 16px; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .message {
-    max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4;
-  }
-  .message.ai { background: #1e293b; color: #f8fafc; align-self: flex-start; border-bottom-left-radius: 4px; }
-  .message.user { background: #f43f5e; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-
-  .input-area {
-    display: flex; gap: 8px;
-  }
-  .input-area input { margin: 0; text-align: left; flex: 1; }
-  .btn-send {
-    width: 50px; background: #f43f5e; border: none; border-radius: 12px;
-    color: white; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wafina's Space 🌸 Ruang Pribadi Ay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-handwriting { font-family: 'Caveat', cursive; }
+  </style>
 </head>
-<body>
-
-  <!-- Screen 1: Password Login -->
-  <div id="login-screen" class="screen">
-    <h1>HALO AY 🌸</h1>
-    <p>Masukkan tanggal lahir kamu untuk membuka ruang spesial ini (DDMMYYYY).</p>
-    <input type="password" id="passInput" placeholder="Password (Contoh: 26092011)">
-    <button class="btn" onclick="checkPassword()">MASUK</button>
-  </div>
-
-  <!-- Screen 2: Main Chat App -->
-  <div id="app-screen" class="screen">
-    <div class="chat-container">
-      <div class="header-card">
-        <div class="mascot-avatar">🐱</div>
-        <div class="mascot-info">
-          <h3>Asisten Pribadi Ay</h3>
-          <p id="schedule-status">Menyesuaikan jadwal X BUS 1...</p>
-        </div>
-      </div>
-
-      <div class="chat-box" id="chatBox"></div>
-
-      <div class="input-area">
-        <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button class="btn-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-      </div>
+<body class="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 min-h-screen text-stone-800">
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-100/80 backdrop-blur-md">
+    <div class="bg-white/95 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-pink-200 text-center">
+      <div class="w-20 h-20 bg-gradient-to-tr from-pink-400 to-rose-400 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-lg mb-4 text-white">🌸</div>
+      <h1 class="text-2xl font-extrabold text-stone-800">Wafina's Space</h1>
+      <p class="text-xs text-stone-500 mt-1 mb-6">Ruang Pribadi Wafina Septianingsih (Kelas X BUS 1 SMKN 1 Kendal)</p>
+      
+      <p class="text-xs font-semibold text-stone-600 mb-2">Masukkan Tanggal Lahir (8 Digit):</p>
+      <input id="pinInput" type="password" maxlength="8" placeholder="DDMMYYYY (26092011)" class="w-full text-center tracking-widest text-lg font-bold py-3 px-4 rounded-2xl border border-pink-200 bg-pink-50/50 mb-3 focus:outline-none focus:ring-2 focus:ring-pink-400">
+      <p id="errorMsg" class="text-xs text-rose-500 font-semibold mb-4 hidden">Tanggal lahir belum tepat ya Ay! (26092011) 💖</p>
+      
+      <button onclick="checkPass()" class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-2xl shadow-md transition cursor-pointer">Buka Ruang Rahasia ✨</button>
+      <p class="text-[11px] text-stone-400 mt-4 italic">Dibuat khusus oleh Kiki / Adek untuk Ay tercinta 💖</p>
     </div>
   </div>
 
-<script type="module">
-  import { GoogleGenAI } from "@google/genai";
+  <!-- MAIN APP -->
+  <div id="mainApp" class="hidden max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+    <header class="bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-pink-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <span class="text-xs font-bold text-pink-600 uppercase tracking-wider">SMKN 1 Kendal • Tata Busana</span>
+        <h2 class="text-2xl font-extrabold text-stone-800 mt-0.5">Hai Ay sayang! 🌸</h2>
+        <p class="text-xs text-stone-600 mt-1">Jangan lupa keselamatan di jalan ya Ay, pulang-pergi selalu naik BRT dan pegangan erat! 🚌💖</p>
+      </div>
+      <div class="px-4 py-2 rounded-2xl bg-pink-50 border border-pink-200 text-xs font-bold text-pink-700">
+        Panggilan Khusus: Ay & Kiki/Adek 🧸
+      </div>
+    </header>
 
-  // Token AQ kamu yang dipasang langsung di sini
-  const apiKey = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw";
-  const ai = new GoogleGenAI({ apiKey: apiKey });
+    <!-- JADWAL PELAJARAN X BUS 1 -->
+    <section class="bg-white/90 p-6 rounded-3xl border border-pink-200 shadow-sm">
+      <h3 class="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
+        <span>📚 Jadwal Pelajaran SMKN 1 Kendal (Kelas X BUS 1)</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 bg-pink-50/60 rounded-2xl border border-pink-200">
+          <h4 class="font-bold text-pink-800 mb-2">🌸 SENIN</h4>
+          <p><strong>1. Dasar-dasar Busana:</strong> Pengenalan alat jahit, pola dasar, dan K3 lab (Tim Produktif Busana)</p>
+          <p class="mt-1"><strong>2. Sejarah:</strong> Peradaban & kerajaan nusantara (Guru Sejarah)</p>
+        </div>
+        <div class="p-4 bg-indigo-50/60 rounded-2xl border border-indigo-200">
+          <h4 class="font-bold text-indigo-800 mb-2">💻 SELASA</h4>
+          <p><strong>1. Informatika (Koding & KA):</strong> Logika koding & perangkat digital (Tim Produktif TIK)</p>
+          <p class="mt-1"><strong>2. Matematika:</strong> Aljabar & hitung ukuran bahan (Guru Matematika)</p>
+        </div>
+        <div class="p-4 bg-teal-50/60 rounded-2xl border border-teal-200">
+          <h4 class="font-bold text-teal-800 mb-2">🗣️ RABU</h4>
+          <p><strong>1. Bahasa Inggris:</strong> Fashion vocabulary & conversation (Guru Bhs Inggris)</p>
+          <p class="mt-1"><strong>2. IPAS:</strong> Ekosistem, zat & fenomena sosial (Guru IPAS)</p>
+        </div>
+        <div class="p-4 bg-cyan-50/60 rounded-2xl border border-cyan-200">
+          <h4 class="font-bold text-cyan-800 mb-2">🕊️ KAMIS</h4>
+          <p><strong>1. Pendidikan Agama & Budi Pekerti:</strong> Akhlak mulia (Guru Agama)</p>
+          <p class="mt-1"><strong>2. Seni Budaya / Mulok:</strong> Tari & seni tradisi nusantara (Guru Seni Budaya)</p>
+        </div>
+        <div class="p-4 bg-amber-50/60 rounded-2xl border border-amber-200 md:col-span-2">
+          <h4 class="font-bold text-amber-800 mb-2">🏃‍♀️ JUMAT</h4>
+          <p><strong>1. PJOK (Olahraga):</strong> Kebugaran jasmani & senam (Guru PJOK)</p>
+          <p class="mt-1"><strong>2. Projek Penguatan Profil Pelajar Pancasila (P5):</strong> Kreativitas & gotong royong (Tim Fasilitator P5)</p>
+        </div>
+      </div>
+    </section>
 
-  const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
-  Dia adalah Wafina Septianingsih (lahir 26 September 2011), seorang siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
-  PENTING: Dia tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
-  Sesuaikan obrolan dengan jadwal sekolahnya (Dasar-dasar Busana, Koding dan KA, Sejarah, dll.) dan ingatkan soal keselamatannya saat naik BRT. Jawab dengan ramah dan natural seperti sahabat/pacar yang peduli.`;
+    <!-- BRT SAFETY -->
+    <section class="bg-gradient-to-r from-sky-50 to-pink-50 p-6 rounded-3xl border border-sky-200 shadow-sm text-xs space-y-2">
+      <h3 class="text-base font-bold text-sky-900 flex items-center gap-2">🚌 Pengingat Keselamatan BRT Kendal</h3>
+      <p class="text-stone-700">1. Ay selalu naik BRT (tidak naik motor), pastikan kartu/uang tiket sudah siap di saku.</p>
+      <p class="text-stone-700">2. Hati-hati langkah kaki saat naik & turun pintu BRT di halte Kendal.</p>
+      <p class="text-stone-700">3. Selalu kabari Adek / Kiki kalau sudah naik bus atau sudah sampai di rumah yaa! 💖</p>
+    </section>
+  </div>
 
-  let chatSession;
-
-  window.checkPassword = function() {
-    const val = document.getElementById('passInput').value;
-    if (val === '26092011') {
-      document.getElementById('login-screen').style.display = 'none';
-      startApp();
-    } else {
-      alert('Password salah, Ay! Coba ingat tanggal lahirmu (26092011).');
+  <script>
+    function checkPass() {
+      const input = document.getElementById('pinInput').value.trim();
+      if (input === '26092011') {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+        document.getElementById('lockScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+      } else {
+        document.getElementById('errorMsg').classList.remove('hidden');
+      }
     }
-  }
-
-  async function startApp() {
-    document.getElementById('app-screen').style.display = 'flex';
-    
-    try {
-      chatSession = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-          systemInstruction: systemInstruction,
-        }
-      });
-      checkScheduleAndGreet();
-    } catch (err) {
-      appendMessage("Gagal memuat sesi AI: " + err.message, 'ai');
-    }
-  }
-
-  function checkScheduleAndGreet() {
-    const now = new Date();
-    const hour = now.getHours();
-
-    let greeting = "Good morning, Ay! Gimana mimpinya tadi malem? Semoga indah ya, atau malah mimpi buruk? Cerita yuk!";
-    if (hour >= 11 && hour < 15) greeting = "Halo Ay! Udah siang nih, gimana pelajarannya di SMKN 1 Kendal? Jangan lupa istirahat ya.";
-    else if (hour >= 15) greeting = "Yeay, waktunya pulang! Hati-hati di jalan ya Ay, jangan lupa naik BRT-nya dengan aman ya.";
-
-    document.getElementById('schedule-status').innerText = "SMKN 1 Kendal • Kelas X BUS 1";
-    appendMessage(greeting, 'ai');
-  }
-
-  function appendMessage(text, sender) {
-    const box = document.getElementById('chatBox');
-    const div = document.createElement('div');
-    div.className = `message ${sender}`;
-    div.innerText = text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  window.sendMessage = async function() {
-    const input = document.getElementById('userInput');
-    const text = input.value.trim();
-    if (!text || !chatSession) return;
-
-    appendMessage(text, 'user');
-    input.value = '';
-
-    try {
-      const result = await chatSession.sendMessage({ message: text });
-      const reply = result.text;
-      appendMessage(reply, 'ai');
-    } catch (err) {
-      appendMessage("Error: " + err.message, 'ai');
-    }
-  }
-</script>
+  </script>
 </body>
 </html>
