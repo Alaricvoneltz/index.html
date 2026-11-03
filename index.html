@@ -2,282 +2,211 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alaric Vault & Game Hub</title>
-<!-- Google Font & FontAwesome Icons -->
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cyber Tap Reflex</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   body {
     font-family: 'Space Grotesk', sans-serif;
-    background: radial-gradient(circle at top, #14151f 0%, #08090c 100%);
-    color: #f8fafc;
-    padding: 20px 14px;
-    display: flex;
-    justify-content: center;
+    background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%);
+    color: #fff;
     min-height: 100vh;
-  }
-  
-  .container {
-    width: 100%;
-    max-width: 480px;
-  }
-
-  /* Header / Profile */
-  .profile {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .avatar-wrapper {
-    position: relative;
-    width: 84px;
-    height: 84px;
-    margin: 0 auto 12px auto;
-    border-radius: 50%;
-    padding: 3px;
-    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-  }
-  .avatar {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #08090c;
-  }
-  .profile h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
-  }
-  .profile p {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-top: 4px;
-  }
-
-  /* Section Title */
-  .section-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #38bdf8;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 20px 0 10px 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-  }
-
-  /* Card Item Script */
-  .script-card {
-    background: rgba(22, 22, 30, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    backdrop-filter: blur(8px);
-    transition: 0.2s;
-  }
-  .script-card:hover {
-    border-color: rgba(139, 92, 246, 0.4);
-  }
-  .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .game-name {
-    font-size: 11px;
-    font-weight: 700;
-    color: #a78bfa;
-    text-transform: uppercase;
-  }
-  .badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 6px;
-  }
-  .badge-working { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
-  .badge-updated { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
-
-  .script-title { font-size: 15px; color: #f8fafc; margin-bottom: 4px; }
-  .script-desc { font-size: 11px; color: #94a3b8; margin-bottom: 10px; line-height: 1.4; }
-
-  /* Box Code & Copy Button */
-  .code-container {
-    background: #0d131f;
-    border: 1px solid #1e293b;
-    border-radius: 8px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .code-text {
-    font-family: monospace;
-    font-size: 10px;
-    color: #38bdf8;
-    white-space: nowrap;
+    justify-content: center;
+    padding: 12px;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
-  .btn-copy {
-    background: #6366f1;
+
+  .game-card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(24, 24, 27, 0.85);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  h1 {
+    font-size: 22px;
+    color: #a855f7;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: space-around;
+    background: #09090b;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #27272a;
+  }
+
+  .stat-box { font-size: 13px; color: #a1a1aa; }
+  .stat-val { font-size: 18px; font-weight: 700; color: #38bdf8; display: block; }
+
+  #game-board {
+    width: 100%;
+    height: 320px;
+    background: #0d0e15;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    border: 2px dashed rgba(168, 85, 247, 0.3);
+  }
+
+  #target {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f43f5e 0%, #be123c 100%);
+    box-shadow: 0 0 20px #f43f5e;
+    position: absolute;
+    display: none;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: 12px 24px;
+    font-size: 15px;
     font-weight: 700;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: 0.2s;
-  }
-  .btn-copy:active { transform: scale(0.95); }
-
-  /* Links / Buttons */
-  .btn-link {
-    display: flex;
-    align-items: center;
-    background: rgba(22, 22, 30, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 12px 14px;
-    color: #ffffff;
-    text-decoration: none;
-    margin-bottom: 10px;
-    transition: 0.2s;
-  }
-  .btn-link:hover {
-    background: rgba(139, 92, 246, 0.15);
-    border-color: rgba(139, 92, 246, 0.4);
-  }
-  .icon-box {
-    width: 36px;
-    height: 36px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    margin-top: 16px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    transition: 0.2s;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  #overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(9, 9, 11, 0.85);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-right: 12px;
-    color: #a78bfa;
+    border-radius: 14px;
   }
-  .btn-text { flex-grow: 1; font-size: 14px; font-weight: 600; }
-  .chevron { font-size: 12px; color: #475569; }
 
-  /* Footer */
-  .footer {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 11px;
-    color: #475569;
-  }
+  #overlay h2 { font-size: 20px; color: #38bdf8; margin-bottom: 6px; }
+  #overlay p { font-size: 13px; color: #a1a1aa; }
 </style>
 </head>
 <body>
 
-  <div class="container">
-    
-    <!-- Profil Header -->
-    <div class="profile">
-      <div class="avatar-wrapper">
-        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=200&q=80" alt="Avatar" class="avatar">
-      </div>
-      <h1>ALARIC VAULT</h1>
-      <p>Roblox Script Suite & Game Hub</p>
-    </div>
-
-    <!-- SECTION 1: ROBLOX SCRIPTS -->
-    <div class="section-title"><i class="fa-solid fa-code"></i> Roblox Scripts</div>
-
-    <!-- Script Item 1 -->
-    <div class="script-card">
-      <div class="card-top">
-        <span class="game-name">Universal</span>
-        <span class="badge badge-working">WORKING</span>
-      </div>
-      <h3 class="script-title">Alaric Hub v1.0</h3>
-      <p class="script-desc">Universal ESP, WalkSpeed slider, JumpPower, & Teleport tool.</p>
-      <div class="code-container">
-        <span class="code-text" id="code1">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Alaricgui-/main/script.lua"))()</span>
-        <button class="btn-copy" onclick="copyCode('code1', this)"><i class="fa-regular fa-copy"></i> Copy</button>
-      </div>
-    </div>
-
-    <!-- Script Item 2 -->
-    <div class="script-card">
-      <div class="card-top">
-        <span class="game-name">Grow a Garden 2</span>
-        <span class="badge badge-working">WORKING</span>
-      </div>
-      <h3 class="script-title">Auto Farm & Harvest</h3>
-      <p class="script-desc">Auto harvest, instant sell, infinite water, & plant ESP.</p>
-      <div class="code-container">
-        <span class="code-text" id="code2">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Game/main/garden2.lua"))()</span>
-        <button class="btn-copy" onclick="copyCode('code2', this)"><i class="fa-regular fa-copy"></i> Copy</button>
-      </div>
-    </div>
-
-    <!-- Script Item 3 -->
-    <div class="script-card">
-      <div class="card-top">
-        <span class="game-name">The Hollow</span>
-        <span class="badge badge-updated">UPDATED</span>
-      </div>
-      <h3 class="script-title">The Hollow Automation</h3>
-      <p class="script-desc">Floor auto win, badge sniper, & target DVDPlayer finder.</p>
-      <div class="code-container">
-        <span class="code-text" id="code3">loadstring(game:HttpGet("https://raw.githubusercontent.com/Alaricvoneltz/Game/main/hollow.lua"))()</span>
-        <button class="btn-copy" onclick="copyCode('code3', this)"><i class="fa-regular fa-copy"></i> Copy</button>
-      </div>
-    </div>
-
-    <!-- SECTION 2: LINKS & COMMUNITY -->
-    <div class="section-title"><i class="fa-solid fa-earth-americas"></i> Community & Links</div>
-
-    <a href="#" class="btn-link">
-      <div class="icon-box"><i class="fa-brands fa-discord"></i></div>
-      <div class="btn-text">Rongawi Empire Discord</div>
-      <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>
-    </a>
-
-    <a href="#" class="btn-link">
-      <div class="icon-box"><i class="fa-brands fa-github"></i></div>
-      <div class="btn-text">GitHub Profile</div>
-      <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>
-    </a>
-
-    <!-- Footer -->
-    <div class="footer">
-      <p>&copy; 2026 Alaric Vault. All rights reserved.</p>
-    </div>
-
+<div class="game-card">
+  <h1>⚡ CYBER REFLEX</h1>
+  
+  <div class="stats-bar">
+    <div class="stat-box">Skor<span id="score" class="stat-val">0</span></div>
+    <div class="stat-box">Waktu<span id="timer" class="stat-val">20s</span></div>
+    <div class="stat-box">Rekor<span id="highscore" class="stat-val">0</span></div>
   </div>
 
-  <script>
-    function copyCode(elementId, button) {
-      const text = document.getElementById(elementId).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-        button.style.background = '#22c55e';
-        setTimeout(() => {
-          button.innerHTML = originalText;
-          button.style.background = '#6366f1';
-        }, 1800);
-      });
-    }
-  </script>
-</body>
-          </html>
-          
+  <div id="game-board">
+    <div id="target"></div>
+    <div id="overlay">
+      <h2>SIAP MAIN?</h2>
+      <p>Tekan target secepat mungkin!</p>
+    </div>
+  </div>
 
+  <button class="btn" id="start-btn" onclick="startGame()">MULAI GAME</button>
+</div>
+
+<script>
+  let score = 0;
+  let timeLeft = 20;
+  let gameTimer = null;
+  let highScore = localStorage.getItem('cyber_reflex_hs') || 0;
+  
+  const target = document.getElementById('target');
+  const board = document.getElementById('game-board');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const hsEl = document.getElementById('highscore');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  hsEl.innerText = highScore;
+
+  function moveTarget() {
+    const maxX = board.clientWidth - 60;
+    const maxY = board.clientHeight - 60;
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+    
+    target.style.left = randomX + 'px';
+    target.style.top = randomY + 'px';
+  }
+
+  function hitTarget() {
+    score++;
+    scoreEl.innerText = score;
+    moveTarget();
+  }
+
+  target.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    hitTarget();
+  });
+  target.addEventListener('click', hitTarget);
+
+  function startGame() {
+    score = 0;
+    timeLeft = 20;
+    scoreEl.innerText = score;
+    timerEl.innerText = timeLeft + 's';
+    
+    overlay.style.display = 'none';
+    target.style.display = 'block';
+    startBtn.style.display = 'none';
+    
+    moveTarget();
+
+    clearInterval(gameTimer);
+    gameTimer = setInterval(() => {
+      timeLeft--;
+      timerEl.innerText = timeLeft + 's';
+
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function endGame() {
+    clearInterval(gameTimer);
+    target.style.display = 'none';
+    overlay.style.display = 'flex';
+    startBtn.style.display = 'block';
+    startBtn.innerText = 'MAIN LAGI';
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('cyber_reflex_hs', highScore);
+      hsEl.innerText = highScore;
+      overlay.innerHTML = `<h2>🎉 REKOR BARU!</h2><p>Skor Akhir Kamu: <b>${score}</b></p>`;
+    } else {
+      overlay.innerHTML = `<h2>WAKTU HABIS!</h2><p>Skor Kamu: <b>${score}</b></p>`;
+    }
+  }
+</script>
+
+</body>
+</html>
