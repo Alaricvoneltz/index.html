@@ -2,297 +2,337 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Photo Mosaic 🧩</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petualangan Ay & Kiki 🎮</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    color: #f8fafc; min-height: 100vh; padding: 20px;
-    display: flex; flex-direction: column; align-items: center;
+    font-family: 'Fredoka', sans-serif;
+    background: #1e1b4b; color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; overflow: hidden;
   }
-  .container {
-    background: rgba(30, 41, 59, 0.7); padding: 24px; border-radius: 20px;
-    width: 100%; max-width: 600px; backdrop-filter: blur(12px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+  .game-container {
+    width: 100%; max-width: 480px; height: 100vh;
+    background: linear-gradient(180deg, #0f172a 0%, #312e81 100%);
+    position: relative; overflow: hidden; display: flex; flex-direction: column;
   }
-  h1 { text-align: center; color: #38bdf8; margin-bottom: 24px; font-size: 22px; display: flex; align-items: center; justify-content: center; gap: 8px; }
   
-  .card {
-    background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 16px;
-    border: 1px dashed rgba(148, 163, 184, 0.4); margin-bottom: 16px;
+  /* Screens */
+  .screen {
+    position: absolute; inset: 0; display: none;
+    flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+    text-align: center; z-index: 10; background: rgba(15, 23, 42, 0.95);
   }
-  .card-title { font-weight: 600; color: #cbd5e1; font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
-  
-  input[type="file"] { display: none; }
-  .file-btn {
-    background: #334155; color: #f8fafc; padding: 10px 16px; border-radius: 10px;
-    font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-    transition: background 0.2s; border: 1px solid #475569; width: 100%; justify-content: center;
-  }
-  .file-btn:active { transform: scale(0.98); }
-  
-  /* Preview Image Styling */
-  #targetPreview { width: 100%; max-height: 200px; object-fit: contain; border-radius: 10px; margin-top: 12px; display: none; background: #000; }
-  .thumb-container { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; padding-bottom: 8px; }
-  .thumb-container::-webkit-scrollbar { height: 6px; }
-  .thumb-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-  .thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #38bdf8; flex-shrink: 0; }
+  .screen.active { display: flex; }
 
-  /* Settings Styling */
-  .setting-group { margin-top: 12px; }
-  input[type="range"] { width: 100%; margin-top: 8px; accent-color: #38bdf8; }
+  h1 { font-size: 28px; color: #fb7185; margin-bottom: 12px; text-shadow: 2px 2px 0px #881337; }
+  p { font-size: 16px; color: #cbd5e1; margin-bottom: 24px; }
 
-  .action-btn {
-    background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none;
-    padding: 14px; border-radius: 14px; width: 100%; font-weight: 700; font-size: 15px;
-    cursor: pointer; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); margin-top: 8px;
-    display: flex; justify-content: center; align-items: center; gap: 8px; transition: transform 0.2s;
-  }
-  .action-btn:active { transform: scale(0.97); }
-  
-  .download-btn {
-    background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-    display: none; margin-top: 12px;
+  .input-name {
+    width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #6366f1;
+    background: #1e1b4b; color: #fff; font-size: 16px; text-align: center; margin-bottom: 20px;
+    font-family: inherit; outline: none;
   }
 
-  #status { text-align: center; margin-top: 16px; color: #fbbf24; font-weight: 600; font-size: 13px; min-height: 20px; }
-  
-  .canvas-wrapper {
-    margin-top: 20px; width: 100%; overflow: hidden; background: #000;
-    border-radius: 12px; display: flex; justify-content: center; align-items: center;
-    border: 1px solid #475569; position: relative;
+  .btn {
+    background: linear-gradient(b, #f43f5e, #e11d48); border: none;
+    padding: 14px 24px; border-radius: 12px; color: white; font-weight: 700; font-size: 18px;
+    cursor: pointer; width: 100%; box-shadow: 0 6px 0 #9f1239; transition: all 0.1s;
+    font-family: inherit; margin-bottom: 12px;
   }
-  canvas { max-width: 100%; height: auto; border-radius: 10px; display: block; }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9f1239; }
+  .btn-blue { background: linear-gradient(to bottom, #60a5fa, #3b82f6); box-shadow: 0 6px 0 #1d4ed8; }
+  .btn-blue:active { box-shadow: 0 2px 0 #1d4ed8; }
+
+  /* Game HUD */
+  .hud {
+    display: flex; justify-content: space-between; padding: 16px 24px;
+    background: rgba(0,0,0,0.5); font-size: 20px; font-weight: 700; z-index: 5;
+  }
+  .lives { color: #f43f5e; }
+  .timer { color: #fbbf24; }
+
+  /* Battle Stage */
+  .stage {
+    flex: 1; display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px; position: relative; background: url('https://www.transparenttextures.com/patterns/cubes.png');
+  }
+  .sprite { font-size: 60px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); transition: transform 0.3s; }
+  .hero { animation: float 2s infinite ease-in-out; }
+  .monster { animation: float 2s infinite ease-in-out reverse; }
+  
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes attack { 0% { transform: translateX(0); } 50% { transform: translateX(30px); } 100% { transform: translateX(0); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-10deg); } 75% { transform: translateX(10px) rotate(10deg); } }
+
+  /* Dialog & Options */
+  .dialog-box {
+    background: #f8fafc; color: #0f172a; padding: 16px; border-radius: 16px;
+    margin: -20px 16px 16px 16px; font-weight: 600; font-size: 15px;
+    border: 4px solid #cbd5e1; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 5;
+  }
+  
+  .options { padding: 0 16px 24px 16px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+  .opt-btn {
+    background: #334155; color: white; border: 2px solid #475569; padding: 14px;
+    border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; text-align: left;
+    transition: background 0.2s; font-family: inherit; display: flex; align-items: center; gap: 10px;
+  }
+  .opt-btn:active { background: #475569; }
+
+  /* Leaderboard */
+  .leaderboard-list { width: 100%; max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px; }
+  .lb-item {
+    background: #1e293b; padding: 12px 16px; border-radius: 10px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;
+  }
+  .lb-rank { font-weight: bold; color: #fbbf24; width: 30px; }
+  .lb-name { flex: 1; font-weight: 600; }
+  .lb-stats { font-size: 13px; color: #94a3b8; text-align: right; }
 </style>
 </head>
 <body>
-  <div class="container">
-    <h1><i class="fa-solid fa-border-all"></i> Pro Mosaic Generator</h1>
-    
-    <!-- Upload Gambar Utama -->
-    <div class="card">
-      <div class="card-title">1. Gambar Target (Utama)</div>
-      <label class="file-btn">
-        <i class="fa-solid fa-image"></i> Pilih Gambar Utama
-        <input type="file" id="targetUpload" accept="image/*">
-      </label>
-      <img id="targetPreview" alt="Preview Utama">
-    </div>
-    
-    <!-- Upload Gambar Random -->
-    <div class="card">
-      <div class="card-title">
-        <span>2. Gambar Random (Mosaik)</span>
-        <span id="sourceCount" style="color:#38bdf8; font-size:12px;">0 terpilih</span>
-      </div>
-      <label class="file-btn">
-        <i class="fa-solid fa-images"></i> Pilih Banyak Gambar
-        <input type="file" id="sourceUpload" accept="image/*" multiple>
-      </label>
-      <div class="thumb-container" id="thumbContainer"></div>
-    </div>
 
-    <!-- Pengaturan Ukuran -->
-    <div class="card">
-      <div class="card-title">3. Pengaturan Mosaik</div>
-      <div class="setting-group">
-        <div style="display: flex; justify-content: space-between; font-size: 13px; color: #cbd5e1;">
-          <span>Ukuran Potongan Gambar</span>
-          <span id="tileSizeVal" style="font-weight:bold; color:#38bdf8;">25px</span>
-        </div>
-        <!-- Slider ukuran tile (10px paling detail, 60px paling besar) -->
-        <input type="range" id="tileSizeInput" min="10" max="60" value="25">
-      </div>
-    </div>
-
-    <button class="action-btn" id="generateBtn" onclick="generateMosaic()">
-      <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Mosaik Sekarang!
-    </button>
-    
-    <div id="status">Pilih gambar utama dan gambar random untuk memulai.</div>
-    
-    <div class="canvas-wrapper">
-      <canvas id="mosaicCanvas"></canvas>
-    </div>
-
-    <button class="action-btn download-btn" id="downloadBtn" onclick="downloadMosaic()">
-      <i class="fa-solid fa-download"></i> Unduh Hasil Mosaik
-    </button>
+<div class="game-container">
+  
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <h1>⚔️ Kuis Petualangan Ay</h1>
+    <p>Bantu Ay mengalahkan monster dengan menjawab pertanyaan tentang Kiki!</p>
+    <input type="text" id="playerName" class="input-name" placeholder="Siapa namamu? (Misal: Ay)" autocomplete="off">
+    <button class="btn" onclick="startGame()">Mulai Petualangan!</button>
+    <button class="btn btn-blue" onclick="showLeaderboard()">Lihat Leaderboard</button>
   </div>
 
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen" style="background: transparent; padding: 0; justify-content: flex-start;">
+    <div class="hud">
+      <div class="lives" id="livesDisplay">❤️❤️❤️</div>
+      <div class="timer">⏳ <span id="timeDisplay">00:00</span></div>
+    </div>
+    
+    <div class="stage">
+      <div class="sprite hero" id="heroSprite">🧙‍♀️</div>
+      <div class="sprite monster" id="monsterSprite">👹</div>
+    </div>
+
+    <div class="dialog-box" id="questionText">Monster menghadangmu!</div>
+    
+    <div class="options" id="optionsContainer">
+      <!-- Pilihan jawaban akan dimuat di sini oleh JS -->
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen" class="screen">
+    <h1 id="resultTitle">Game Over!</h1>
+    <p id="resultMsg">Nyawamu habis dimakan monster.</p>
+    <div style="font-size: 40px; margin-bottom: 20px;" id="resultEmoji">💀</div>
+    <button class="btn" onclick="goToStart()">Menu Utama</button>
+    <button class="btn btn-blue" onclick="showLeaderboard()">Leaderboard</button>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboard-screen" class="screen">
+    <h1>🏆 Leaderboard</h1>
+    <p>Ranking petualang terbaik!</p>
+    <div class="leaderboard-list" id="lbList">
+      <!-- List dari JS -->
+    </div>
+    <button class="btn" onclick="goToStart()">Kembali</button>
+  </div>
+
+</div>
+
  <script>
-  const targetUpload = document.getElementById('targetUpload');
-  const targetPreview = document.getElementById('targetPreview');
-  const sourceUpload = document.getElementById('sourceUpload');
-  const thumbContainer = document.getElementById('thumbContainer');
-  const sourceCount = document.getElementById('sourceCount');
-  
-  const tileSizeInput = document.getElementById('tileSizeInput');
-  const tileSizeVal = document.getElementById('tileSizeVal');
-  const canvas = document.getElementById('mosaicCanvas');
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  const statusDiv = document.getElementById('status');
-  const downloadBtn = document.getElementById('downloadBtn');
-
-  let targetImg = null;
-  let sourceImages = [];
-
-  // Update text slider ukuran
-  tileSizeInput.addEventListener('input', (e) => {
-    tileSizeVal.innerText = `${e.target.value}px`;
-  });
-
-  // 1. Membaca dan menampilkan Preview Gambar Utama
-  targetUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => { 
-        targetImg = img; 
-        targetPreview.src = img.src;
-        targetPreview.style.display = 'block';
-        statusDiv.innerText = "Gambar utama dimuat. Lanjut pilih gambar random!";
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // 2. Membaca dan menampilkan Thumbnail Gambar Random
-  sourceUpload.addEventListener('change', async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-    
-    statusDiv.innerText = `Memproses ${files.length} gambar random...`;
-    sourceCount.innerText = `${files.length} terpilih`;
-    thumbContainer.innerHTML = ''; // Kosongkan thumbnail sebelumnya
-    sourceImages = [];
-    
-    for (let file of files) {
-      const img = await loadImage(file);
-      const color = getAverageColor(img);
-      sourceImages.push({ img, color });
-      
-      // Buat thumbnail kecil di UI
-      const thumb = document.createElement('img');
-      thumb.src = img.src;
-      thumb.className = 'thumb';
-      thumbContainer.appendChild(thumb);
+  // --- DATABASE PERTANYAAN (Fakta Kiki & Ay) ---
+  const questions = [
+    {
+      q: "Grrr! Siapa nama panggilan kesayangan pembuat game ini kalau dipanggil sama Ay?",
+      opts: ["Mas Riski", "Kiki / Adek", "Fiko", "Kakak"],
+      ans: 1, monster: "👹"
+    },
+    {
+      q: "Aku monster jalanan! Ay kalau berangkat sekolah ke SMKN 1 Kendal biasanya naik apa?",
+      opts: ["Sepeda Motor", "Jalan Kaki", "BRT", "Angkot"],
+      ans: 2, monster: "🐉"
+    },
+    {
+      q: "Tanggal berapa Ay (Wafina) ulang tahun hayo?!",
+      opts: ["26 September 2011", "2 Februari 2011", "10 Oktober 2011", "26 Agustus 2011"],
+      ans: 0, monster: "🧛‍♂️"
+    },
+    {
+      q: "Hehe! Kiki biasanya bangun jam berapa pagi buat siap-siap sekolah?",
+      opts: ["05:30 AM", "06:00 AM", "04:30 AM", "05:00 AM"],
+      ans: 2, monster: "🧟‍♂️"
+    },
+    {
+      q: "Pertanyaan terakhir! Ay kelas X BUS 1, kalau Kiki di SMKN 1 Kendal kelas jurusan apa?",
+      opts: ["X TSM", "X TKJ", "X RPL", "X BUS 3"],
+      ans: 3, monster: "🧙‍♂️" // Boss
     }
-    statusDiv.innerText = `${sourceImages.length} gambar siap disusun!`;
-  });
+  ];
 
-  function loadImage(file) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+  // --- VARIABEL GAME ---
+  let currentQ = 0;
+  let lives = 3;
+  let timerInterval;
+  let seconds = 0;
+  let playerName = "";
+
+  // Elements
+  const screens = document.querySelectorAll('.screen');
+  const livesDisplay = document.getElementById('livesDisplay');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const qText = document.getElementById('questionText');
+  const optsContainer = document.getElementById('optionsContainer');
+  const heroSprite = document.getElementById('heroSprite');
+  const monsterSprite = document.getElementById('monsterSprite');
+
+  // --- FUNGSI NAVIGASI ---
+  function switchScreen(id) {
+    screens.forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function goToStart() {
+    switchScreen('start-screen');
+  }
+
+  // --- FUNGSI GAMEPLAY ---
+  function startGame() {
+    const nameInput = document.getElementById('playerName').value.trim();
+    playerName = nameInput === "" ? "Petualang Misterius" : nameInput;
+    
+    currentQ = 0;
+    lives = 3;
+    seconds = 0;
+    updateLives();
+    timeDisplay.innerText = "00:00";
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      timeDisplay.innerText = `${m}:${s}`;
+    }, 1000);
+
+    switchScreen('game-screen');
+    loadQuestion();
+  }
+
+  function updateLives() {
+    livesDisplay.innerText = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+  }
+
+  function loadQuestion() {
+    const qData = questions[currentQ];
+    qText.innerText = qData.q;
+    monsterSprite.innerText = qData.monster;
+    
+    optsContainer.innerHTML = "";
+    qData.opts.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.innerHTML = `<span style="color:#fbbf24;">${['A','B','C','D'][index]}.</span> ${opt}`;
+      btn.onclick = () => checkAnswer(index);
+      optsContainer.appendChild(btn);
     });
   }
 
-  function getAverageColor(img) {
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = 10; tempCanvas.height = 10;
-    tempCtx.drawImage(img, 0, 0, 10, 10);
-    const data = tempCtx.getImageData(0, 0, 10, 10).data;
+  function checkAnswer(selectedIndex) {
+    const correctIndex = questions[currentQ].ans;
     
-    let r = 0, g = 0, b = 0;
-    const count = data.length / 4;
-    for (let i = 0; i < data.length; i += 4) {
-      r += data[i]; g += data[i+1]; b += data[i+2];
-    }
-    return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
-  }
-
-  function findBestMatch(targetColor) {
-    let bestMatch = sourceImages[0];
-    let minDiff = Infinity;
-    for (let src of sourceImages) {
-      const diff = Math.abs(src.color.r - targetColor.r) + 
-                   Math.abs(src.color.g - targetColor.g) + 
-                   Math.abs(src.color.b - targetColor.b);
-      if (diff < minDiff) {
-        minDiff = diff;
-        bestMatch = src;
+    if (selectedIndex === correctIndex) {
+      // Benar -> Animasi serang
+      heroSprite.style.animation = "attack 0.5s";
+      setTimeout(() => heroSprite.style.animation = "float 2s infinite ease-in-out", 500);
+      
+      currentQ++;
+      if (currentQ >= questions.length) {
+        setTimeout(winGame, 600);
+      } else {
+        setTimeout(loadQuestion, 600);
+      }
+    } else {
+      // Salah -> Animasi gemetar (damage) & kurang nyawa
+      monsterSprite.style.animation = "attack 0.5s reverse";
+      heroSprite.style.animation = "shake 0.5s";
+      setTimeout(() => {
+        monsterSprite.style.animation = "float 2s infinite ease-in-out reverse";
+        heroSprite.style.animation = "float 2s infinite ease-in-out";
+      }, 500);
+      
+      lives--;
+      updateLives();
+      if (lives <= 0) {
+        setTimeout(loseGame, 500);
       }
     }
-    return bestMatch;
   }
 
-  // 3. Render Mosaik
-  async function generateMosaic() {
-    if (!targetImg) return alert("Pilih gambar utamanya dulu ya!");
-    if (sourceImages.length === 0) return alert("Upload beberapa gambar random dulu!");
+  // --- KONDISI SELESAI ---
+  function winGame() {
+    clearInterval(timerInterval);
+    document.getElementById('resultTitle').innerText = "Kemenangan!";
+    document.getElementById('resultTitle').style.color = "#34d399";
+    document.getElementById('resultMsg').innerText = `Hebat Ay! Kamu menang dengan sisa ${lives} nyawa dalam waktu ${timeDisplay.innerText}.`;
+    document.getElementById('resultEmoji').innerText = "🎉";
     
-    // Ambil ukuran dari slider (semakin besar angkanya, semakin besar potongan gambarnya)
-    const TILE_SIZE = parseInt(tileSizeInput.value);
-    
-    // Tetapkan lebar patokan hasil akhir (misal 1000px agar cukup detail tapi tidak lemot)
-    const outputWidth = 1000; 
-    const COLUMNS = Math.floor(outputWidth / TILE_SIZE);
-    
-    statusDiv.innerText = "Merakit mosaik... Sabar ya Kiki!";
-    downloadBtn.style.display = 'none'; // Sembunyikan tombol unduh saat proses
-    
-    const scale = outputWidth / targetImg.width;
-    const outputHeight = Math.floor(targetImg.height * scale);
-    const rows = Math.floor(outputHeight / TILE_SIZE);
-    
-    canvas.width = COLUMNS * TILE_SIZE; 
-    canvas.height = rows * TILE_SIZE;
+    saveScore();
+    switchScreen('result-screen');
+  }
 
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
-    tempCanvas.width = COLUMNS; tempCanvas.height = rows;
-    tempCtx.drawImage(targetImg, 0, 0, COLUMNS, rows);
-    const targetData = tempCtx.getImageData(0, 0, COLUMNS, rows).data;
+  function loseGame() {
+    clearInterval(timerInterval);
+    document.getElementById('resultTitle').innerText = "Game Over!";
+    document.getElementById('resultTitle').style.color = "#f43f5e";
+    document.getElementById('resultMsg').innerText = "Yah, Ay kehabisan nyawa! Coba lagi ya.";
+    document.getElementById('resultEmoji').innerText = "💀";
+    
+    switchScreen('result-screen');
+  }
 
-    let pixelIndex = 0;
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < COLUMNS; x++) {
-        const r = targetData[pixelIndex];
-        const g = targetData[pixelIndex + 1];
-        const b = targetData[pixelIndex + 2];
-        
-        const bestImage = findBestMatch({ r, g, b });
-        
-        // Gambar potongan kecilnya
-        ctx.drawImage(bestImage.img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        
-        // Overlay warna supaya wajah aslinya tetap mudah dikenali
-        ctx.fillStyle = `rgba(${r},${g},${b}, 0.45)`;
-        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        
-        pixelIndex += 4;
-      }
-      // Animasi proses (mencegah HP lag/freeze)
-      if (y % 5 === 0) await new Promise(r => setTimeout(r, 1)); 
+  // --- LEADERBOARD (Local Storage) ---
+  function saveScore() {
+    let lb = JSON.parse(localStorage.getItem('ayKikiLeaderboard')) || [];
+    lb.push({ name: playerName, lives: lives, time: seconds, timeStr: timeDisplay.innerText });
+    
+    // Sort: Nyawa terbanyak (desc), Waktu tercepat (asc)
+    lb.sort((a, b) => {
+      if (b.lives !== a.lives) return b.lives - a.lives;
+      return a.time - b.time;
+    });
+    
+    // Simpan top 10
+    lb = lb.slice(0, 10);
+    localStorage.setItem('ayKikiLeaderboard', JSON.stringify(lb));
+  }
+
+  function showLeaderboard() {
+    const lb = JSON.parse(localStorage.getItem('ayKikiLeaderboard')) || [];
+    const lbList = document.getElementById('lbList');
+    lbList.innerHTML = "";
+    
+    if (lb.length === 0) {
+      lbList.innerHTML = "<p style='text-align:center;'>Belum ada petualang. Ayo main!</p>";
+    } else {
+      lb.forEach((entry, index) => {
+        let medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index+1}`;
+        lbList.innerHTML += `
+          <div class="lb-item">
+            <div class="lb-rank">${medal}</div>
+            <div class="lb-name">${entry.name}</div>
+            <div class="lb-stats">❤️ ${entry.lives} | ⏱️ ${entry.timeStr}</div>
+          </div>
+        `;
+      });
     }
-    
-    statusDiv.innerHTML = "✨ Selesai! Mosaik berhasil tersusun. ✨";
-    downloadBtn.style.display = 'flex'; // Munculkan tombol unduh
-  }
-
-  // 4. Fitur Unduh (Download) Hasil
-  function downloadMosaic() {
-    const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-    const link = document.createElement("a");
-    link.href = dataURL;
-    link.download = `Mosaik-Kiki-${new Date().getTime()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    switchScreen('leaderboard-screen');
   }
 </script>
 </body>
