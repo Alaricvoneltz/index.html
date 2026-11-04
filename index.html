@@ -2,338 +2,193 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Wafina's Space 🌸</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script type="importmap">
-  {
-    "imports": {
-      "@google/genai": "https://esm.run/@google/genai"
-    }
-  }
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Mosaic Generator 🧩</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body, html {
-    width: 100%; height: 100%;
-    background: #090d16; color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    overflow: hidden;
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #f8fafc;
+    margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
   }
-
-  .screen {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    padding: 24px; text-align: center; background: radial-gradient(circle at center, #1e1b4b 0%, #090d16 100%); z-index: 10;
+  .container {
+    background: #1e293b; padding: 24px; border-radius: 16px; width: 100%;
+    max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155;
   }
-
-  .login-card {
-    background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 360px;
-    backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  h1 { text-align: center; color: #38bdf8; margin-top: 0; margin-bottom: 24px; font-size: 24px; }
+  .upload-group {
+    margin-bottom: 20px; background: #0f172a; padding: 16px;
+    border-radius: 12px; border: 1px dashed #475569;
   }
-
-  h1 { font-size: 22px; color: #fb7185; margin-bottom: 8px; font-weight: 700; }
-  .login-card p { font-size: 13px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }
-
-  input {
-    width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155;
-    color: #fff; padding: 14px 18px; border-radius: 14px;
-    font-family: inherit; font-size: 15px; outline: none; margin-bottom: 16px;
-    text-align: center; transition: border-color 0.3s;
-  }
-  input:focus { border-color: #fb7185; }
-
+  label { display: block; margin-bottom: 8px; font-weight: 600; color: #94a3b8; font-size: 14px; }
+  input[type="file"] { color: #cbd5e1; width: 100%; font-size: 13px; }
+  
   .btn {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white; border: none; padding: 14px 24px; border-radius: 14px;
-    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 8px 20px rgba(244, 63, 94, 0.4); width: 100%;
-    transition: transform 0.2s;
+    background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none;
+    padding: 14px; border-radius: 12px; width: 100%; font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: transform 0.2s;
   }
   .btn:active { transform: scale(0.97); }
-
-  /* Main App UI */
-  #app-screen { display: none; justify-content: flex-start; padding: 12px; }
   
-  .app-container {
-    width: 100%; max-width: 480px; height: 100%;
-    margin: 0 auto; display: flex; flex-direction: column; gap: 10px;
-  }
-
-  .header-card {
-    background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08);
-    padding: 12px 16px; border-radius: 18px; display: flex; align-items: center; justify-content: space-between;
-    backdrop-filter: blur(10px);
-  }
-  .profile-box { display: flex; align-items: center; gap: 12px; }
-  .mascot-avatar {
-    width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #f43f5e, #fb7185);
-    display: flex; justify-content: center; align-items: center; font-size: 24px;
-    box-shadow: 0 0 16px rgba(244, 63, 94, 0.5); position: relative;
-    transition: transform 0.3s;
-  }
-  .mascot-avatar.bounce { animation: bounceEffect 0.5s ease; }
-  @keyframes bounceEffect {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2) rotate(5deg); }
-  }
-
-  .mascot-info h3 { font-size: 14px; color: #fff; font-weight: 600; }
-  .mascot-info p { font-size: 11px; color: #38bdf8; margin: 0; text-align: left; }
-
-  /* Interactive Mascot Stage & Feeding Area */
-  .stage-card {
-    background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 18px; padding: 12px; text-align: center; position: relative;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-  .speech-bubble {
-    background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
-    padding: 8px 14px; border-radius: 12px; font-size: 12px; color: #e2e8f0;
-    margin-bottom: 8px; max-width: 90%; min-height: 36px; display: flex; align-items: center; justify-content: center;
-    position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
+  #status { text-align: center; margin-top: 14px; color: #fbbf24; font-weight: 600; font-size: 14px; min-height: 20px; }
   
-  .avatar-display-box {
-    width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, #334155, #0f172a);
-    display: flex; justify-content: center; align-items: center; font-size: 36px;
-    border: 2px solid #fb7185; cursor: pointer; position: relative;
-    box-shadow: 0 0 20px rgba(251, 113, 133, 0.3);
+  .canvas-container {
+    margin-top: 20px; width: 100%; overflow-x: auto; background: #000;
+    border-radius: 12px; display: flex; justify-content: center; align-items: center;
+    border: 1px solid #334155;
   }
-
-  /* Tray Makanan untuk di-drag */
-  .food-tray {
-    display: flex; gap: 10px; margin-top: 8px; justify-content: center; background: rgba(30,41,59,0.4);
-    padding: 6px 12px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);
-  }
-  .food-item {
-    font-size: 22px; cursor: grab; padding: 4px; user-select: none;
-    transition: transform 0.2s; touch-action: none;
-  }
-  .food-item:active { cursor: grabbing; transform: scale(1.2); }
-
-  .chat-box {
-    flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 18px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-  }
-
-  .message {
-    max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4;
-  }
-  .message.ai { background: #1e293b; color: #f8fafc; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-  .message.user { background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(244,63,94,0.3); }
-
-  .input-area {
-    display: flex; gap: 8px; align-items: center; padding-top: 4px;
-  }
-  .input-area input { margin: 0; text-align: left; flex: 1; border-radius: 14px; padding: 12px 16px; font-size: 13px; }
-  .btn-send {
-    width: 48px; height: 48px; background: linear-gradient(135deg, #f43f5e, #e11d48); border: none; border-radius: 14px;
-    color: white; font-size: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4); flex-shrink: 0;
-  }
+  canvas { max-width: 100%; height: auto; border-radius: 8px; }
 </style>
 </head>
 <body>
-
-  <!-- Screen 1: Password Login -->
-  <div id="login-screen" class="screen">
-    <div class="login-card">
-      <h1>HALO AY 🌸</h1>
-      <p>Masukkan tanggal lahir kamu untuk membuka ruang spesial ini (DDMMYYYY).</p>
-      <input type="password" id="passInput" placeholder="Password (Contoh: 26092011)">
-      <button class="btn" onclick="checkPassword()">MASUK</button>
-    </div>
-  </div>
-
-  <!-- Screen 2: Main Chat App -->
-  <div id="app-screen" class="screen">
-    <div class="app-container">
-      
-      <!-- Header Info -->
-      <div class="header-card">
-        <div class="profile-box">
-          <div class="mascot-avatar" id="headerMascot">🐱</div>
-          <div class="mascot-info">
-            <h3>Wafina's Space</h3>
-            <p id="schedule-status">SMKN 1 Kendal • Kelas X BUS 1</p>
-          </div>
-        </div>
-        <div style="font-size: 11px; color: #fb7185; background: rgba(251,113,133,0.1); padding: 4px 8px; border-radius: 8px;">
-          By: Kiki
-        </div>
-      </div>
-
-      <!-- Mascot Interactive Stage & Drag Feeding Area -->
-      <div class="stage-card">
-        <div class="speech-bubble" id="speechBubble">Halo Ay! Lagi sibuk apa nih sama Kiki?</div>
-        
-        <div class="avatar-display-box" id="avatarBox" onclick="pokeMascot()">
-          🐱
-        </div>
-
-        <!-- Tray Makanan yang bisa di-drag ke avatar -->
-        <div class="food-tray" id="foodTray">
-          <div class="food-item" draggable="true" data-food="🍰" ontouchstart="" ondragstart="drag(event)">🍰</div>
-          <div class="food-item" draggable="true" data-food="🍓" ontouchstart="" ondragstart="drag(event)">🍓</div>
-          <div class="food-item" draggable="true" data-food="🧋" ontouchstart="" ondragstart="drag(event)">🧋</div>
-          <div class="food-item" draggable="true" data-food="🍜" ontouchstart="" ondragstart="drag(event)">🍜</div>
-        </div>
-      </div>
-
-      <!-- Chat Box -->
-      <div class="chat-box" id="chatBox"></div>
-
-      <!-- Input Area -->
-      <div class="input-area">
-        <input type="text" id="userInput" placeholder="Ketik pesan ke maskot..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button class="btn-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-      </div>
-
-    </div>
-  </div>
-
-<script type="module">
-  import { GoogleGenAI } from "@google/genai";
-
-  // Token AQ kamu yang terpasang
-  const apiKey = "AQ.Ab8RN6LB6qm4ut6n5ZyRp27SPLvlAPv04ipPSwdFOP3p-bB1qw";
-  const ai = new GoogleGenAI({ apiKey: apiKey });
-
-  const systemInstruction = `Kamu adalah maskot virtual yang imut, manis, dan sangat perhatian. Panggil pengguna dengan sebutan "Ay". 
-  Pencipta atau pembuat web ini adalah Riski Febriyanto, yang biasanya dipanggil oleh Ay dengan sebutan "Kiki" atau "Adek".
-  Dia adalah Wafina Septianingsih (lahir 26 September 2011), siswi kelas X BUS 1 di SMKN 1 Kendal, Jawa Tengah.
-  PENTING: Ay tidak naik sepeda motor, melainkan berangkat dan pulang sekolah menggunakan BRT (Bus Rapid Transit). 
-  Jadwal pelajarannya meliputi Dasar-dasar Busana, Sejarah, Informatika/Koding, Matematika, Bahasa Inggris, IPAS, Agama, Seni Budaya, PJOK, dan P5.
-  Ingatkan soal keselamatannya saat naik BRT dan sapa dengan hangat layaknya sahabat/pasangan yang peduli.`;
-
-  let chatSession;
-
-  window.checkPassword = function() {
-    const val = document.getElementById('passInput').value;
-    if (val === '26092011') {
-      document.getElementById('login-screen').style.display = 'none';
-      startApp();
-    } else {
-      alert('Password salah, Ay! Coba ingat tanggal lahirmu (26092011).');
-    }
-  }
-
-  async function startApp() {
-    document.getElementById('app-screen').style.display = 'flex';
+  <div class="container">
+    <h1>Mosaik Foto Generator 🧩</h1>
     
-    try {
-      chatSession = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: { systemInstruction: systemInstruction }
-      });
-      checkScheduleAndGreet();
-    } catch (err) {
-      appendMessage("Gagal memuat sesi AI: " + err.message, 'ai');
-    }
-  }
+    <div class="upload-group">
+      <label>1. Upload Gambar Utama (Target seperti wajah Pak Jokowi)</label>
+      <input type="file" id="targetUpload" accept="image/*">
+    </div>
+    
+    <div class="upload-group">
+      <label>2. Upload Gambar Random (Pilih minimal 10-30 foto sekaligus)</label>
+      <input type="file" id="sourceUpload" accept="image/*" multiple>
+    </div>
 
-  function checkScheduleAndGreet() {
-    const now = new Date();
-    const hour = now.getHours();
+    <button class="btn" onclick="generateMosaic()">Buat Mosaik Sekarang!</button>
+    <div id="status">Menunggu gambar...</div>
+    
+    <div class="canvas-container">
+      <canvas id="mosaicCanvas"></canvas>
+    </div>
+  </div>
 
-    let greeting = "Good morning, Ay! Gimana tidurnya semalem? Jangan lupa siap-siap buat sekolah ya, Kiki pasti nemenin kok!";
-    if (hour >= 11 && hour < 15) greeting = "Halo Ay! Udah siang nih, gimana pelajarannya di SMKN 1 Kendal? Semangat ya belajarnya!";
-    else if (hour >= 15) greeting = "Yeay, waktunya pulang! Hati-hati di jalan ya Ay, jangan lupa naik BRT-nya dengan aman dan kabari Kiki kalau sudah sampai rumah.";
+  <script>
+  const targetUpload = document.getElementById('targetUpload');
+  const sourceUpload = document.getElementById('sourceUpload');
+  const canvas = document.getElementById('mosaicCanvas');
+  const ctx = canvas.getContext('2d');
+  const statusDiv = document.getElementById('status');
 
-    setBubble(greeting);
-    appendMessage(greeting, 'ai');
-  }
+  let targetImg = null;
+  let sourceImages = [];
+  const TILE_SIZE = 15; // Ukuran kotak per gambar kecil (makin kecil makin detail tapi agak berat)
+  const COLUMNS = 60; // Jumlah kotak ke samping
 
-  function setBubble(text) {
-    document.getElementById('speechBubble').innerText = text;
-  }
-
-  function appendMessage(text, sender) {
-    const box = document.getElementById('chatBox');
-    const div = document.createElement('div');
-    div.className = `message ${sender}`;
-    div.innerText = text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  window.sendMessage = async function() {
-    const input = document.getElementById('userInput');
-    const text = input.value.trim();
-    if (!text || !chatSession) return;
-
-    appendMessage(text, 'user');
-    input.value = '';
-
-    try {
-      const result = await chatSession.sendMessage({ message: text });
-      const reply = result.text;
-      appendMessage(reply, 'ai');
-      setBubble(reply);
-      triggerBounce();
-    } catch (err) {
-      appendMessage("Error: " + err.message, 'ai');
-    }
-  }
-
-  window.pokeMascot = function() {
-    triggerBounce();
-    const pokes = [
-      "Ih, Kiki, jangan dicolok-colok terus! 🤭",
-      "Makasih ya udah bikin ruang spesial ini buat aku, Ay sayang Kiki! ❤️",
-      "Hati-hati di jalan kalau mau naik BRT ya, Ay!",
-      "Lagi mikirin tugas sekolah atau mikirin Kiki nih?"
-    ];
-    const randomPoke = pokes[Math.floor(Math.random() * pokes.length)];
-    setBubble(randomPoke);
-  }
-
-  function triggerBounce() {
-    const av1 = document.getElementById('headerMascot');
-    const av2 = document.getElementById('avatarBox');
-    av1.classList.add('bounce');
-    av2.classList.add('bounce');
-    setTimeout(() => {
-      av1.classList.remove('bounce');
-      av2.classList.remove('bounce');
-    }, 500);
-  }
-
-  // Fitur Drag and Drop Makanan ke Avatar
-  window.drag = function(ev) {
-    ev.dataTransfer.setData("text", ev.target.getAttribute("data-food"));
-  }
-
-  const avatarBox = document.getElementById('avatarBox');
-  avatarBox.addEventListener('dragover', (e) => e.preventDefault());
-  avatarBox.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const food = e.dataTransfer.getData("text");
-    feedMascot(food);
+  // 1. Membaca gambar target utama
+  targetUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => { targetImg = img; statusDiv.innerText = "Gambar utama berhasil dimuat!"; };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 
-  // Support Touch (Mobile Drag Simulation)
-  const foodItems = document.querySelectorAll('.food-item');
-  foodItems.forEach(item => {
-    item.addEventListener('click', () => {
-      feedMascot(item.getAttribute('data-food'));
+  // 2. Membaca gambar-gambar random dan menghitung warna rata-ratanya
+  sourceUpload.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    statusDiv.innerText = `Memproses ${files.length} gambar random...`;
+    sourceImages = [];
+    
+    for (let file of files) {
+      const img = await loadImage(file);
+      const color = getAverageColor(img);
+      sourceImages.push({ img, color });
+    }
+    statusDiv.innerText = `${sourceImages.length} gambar random siap digunakan!`;
+  });
+
+  function loadImage(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
     });
-  });
+  }
 
-  function feedMascot(food) {
-    triggerBounce();
-    const reactions = [
-      "Nyam nyam! Enak banget makanannya, makasih ya Kiki/Ay! 😋",
-      `Wah, dikasih ${food}! Suka banget, jadi makin semangat nih! ✨`,
-      "Makasih makanannya! Kamu perhatian banget sih sama aku 🥰"
-    ];
-    const reaction = reactions[Math.floor(Math.random() * reactions.length)];
-    setBubble(reaction);
-    appendMessage(`[Memberi makan ${food}]`, 'user');
-    appendMessage(reaction, 'ai');
+  function getAverageColor(img) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = TILE_SIZE; tempCanvas.height = TILE_SIZE;
+    tempCtx.drawImage(img, 0, 0, TILE_SIZE, TILE_SIZE);
+    const data = tempCtx.getImageData(0, 0, TILE_SIZE, TILE_SIZE).data;
+    
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      r += data[i]; g += data[i+1]; b += data[i+2];
+    }
+    const count = data.length / 4;
+    return { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) };
+  }
+
+  // 3. Mencari gambar random yang warnanya paling pas
+  function findBestMatch(targetColor) {
+    let bestMatch = sourceImages[0];
+    let minDiff = Infinity;
+    for (let src of sourceImages) {
+      // Rumus menghitung selisih warna
+      const diff = Math.abs(src.color.r - targetColor.r) + 
+                   Math.abs(src.color.g - targetColor.g) + 
+                   Math.abs(src.color.b - targetColor.b);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestMatch = src;
+      }
+    }
+    return bestMatch;
+  }
+
+  // 4. Proses menggambar dan menyatukan mosaik
+  async function generateMosaic() {
+    if (!targetImg) return alert("Pilih gambar utamanya dulu ya!");
+    if (sourceImages.length === 0) return alert("Upload minimal 10-30 gambar random biar mosaiknya kelihatan bagus!");
+    
+    statusDiv.innerText = "Sedang menyusun gambar... Sabar ya Kiki!";
+    
+    // Setup ukuran kanvas akhir
+    const width = COLUMNS * TILE_SIZE;
+    const scale = width / targetImg.width;
+    const height = Math.floor(targetImg.height * scale);
+    const rows = Math.floor(height / TILE_SIZE);
+    
+    canvas.width = width; canvas.height = height;
+
+    // Baca pixel dari gambar utama
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = COLUMNS; tempCanvas.height = rows;
+    tempCtx.drawImage(targetImg, 0, 0, COLUMNS, rows);
+    const targetData = tempCtx.getImageData(0, 0, COLUMNS, rows).data;
+
+    let pixelIndex = 0;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < COLUMNS; x++) {
+        const r = targetData[pixelIndex];
+        const g = targetData[pixelIndex + 1];
+        const b = targetData[pixelIndex + 2];
+        
+        const bestImage = findBestMatch({ r, g, b });
+        // Gambar foto kecil di posisinya
+        ctx.drawImage(bestImage.img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        
+        // Sedikit filter warna asli di atasnya agar lebih menyatu dan jelas bentuknya
+        ctx.fillStyle = `rgba(${r},${g},${b}, 0.4)`;
+        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        
+        pixelIndex += 4;
+      }
+      // Delay sedikit per baris supaya browser HP tidak force close/nge-hang
+      await new Promise(r => setTimeout(r, 5)); 
+    }
+    statusDiv.innerText = "Selesai! Gambar berhasil tersusun 🎉";
   }
 </script>
 </body>
