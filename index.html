@@ -8,124 +8,157 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #09090b; color: #f8fafc;
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-  }
-  
-  .app-container {
-    width: 100%; max-width: 600px; padding: 20px;
-    display: flex; flex-direction: column; flex: 1; position: relative;
-  }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #09090b; color: #f8fafc; min-height: 100vh; display: flex; justify-content: center; overflow-x: hidden; }
+  .app-container { width: 100%; max-width: 600px; display: flex; flex-direction: column; position: relative; min-height: 100vh; }
 
-  /* Header & Menu */
-  .header { text-align: center; margin-bottom: 24px; margin-top: 12px; }
+  /* Navbar & Header */
+  .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
+  .menu-btn { background: transparent; border: none; color: #f8fafc; font-size: 24px; cursor: pointer; }
+  .header { text-align: center; margin-bottom: 20px; }
   .header h1 { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
 
-  .screen { display: none; flex-direction: column; width: 100%; animation: fadeIn 0.3s ease; }
+  /* Screens */
+  .screen { display: none; flex-direction: column; width: 100%; padding: 0 20px 20px 20px; animation: fadeIn 0.3s ease; flex: 1; }
   .screen.active { display: flex; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* Sidebar Menu */
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: none; backdrop-filter: blur(4px); }
+  .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: #1e293b; z-index: 50; transition: left 0.3s ease; padding: 24px; border-right: 1px solid #334155; overflow-y: auto; }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay.show { display: block; }
+  .close-sidebar { background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; position: absolute; top: 20px; right: 20px; }
+  .side-title { font-size: 18px; font-weight: 800; color: #38bdf8; margin-bottom: 24px; }
+  .side-section { margin-bottom: 24px; }
+  .side-section h4 { font-size: 13px; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  
+  /* Mode Radios */
+  .mode-label { display: flex; align-items: center; gap: 10px; padding: 10px; background: #0f172a; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid #334155; }
+  .mode-label input { accent-color: #38bdf8; width: 18px; height: 18px; }
+  .mode-desc { font-size: 11px; color: #64748b; margin-top: 4px; display: block; }
+  
+  /* Social Links */
+  .social-btn { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; margin-bottom: 10px; }
+  .btn-dc { background: #5865F2; } .btn-wa { background: #10b981; }
+
+  /* Grid Games */
   .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .game-card {
-    background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px; padding: 20px 16px; text-align: center; cursor: pointer;
-    transition: all 0.2s; backdrop-filter: blur(10px);
-  }
+  .game-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px 16px; text-align: center; cursor: pointer; backdrop-filter: blur(10px); }
   .game-card:active { transform: scale(0.95); }
   .game-card i { font-size: 32px; margin-bottom: 12px; display: block; }
-  .game-card h3 { font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
-  
-  .c-family { color: #f43f5e; } .c-sambung { color: #10b981; } .c-gambar { color: #f59e0b; }
-  .c-kata { color: #8b5cf6; } .c-abc { color: #06b6d4; grid-column: span 2; }
+  .c-family { color: #f43f5e; } .c-sambung { color: #10b981; } .c-gambar { color: #f59e0b; } .c-abc { color: #06b6d4; grid-column: span 2; }
 
-  /* Game Interface & Engine */
-  .game-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 16px; background: rgba(30, 41, 59, 0.8); border-radius: 16px; }
+  /* Game HUD (Timer, Health, Streak) */
+  .game-hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%; background: #1e293b; padding: 12px 16px; border-radius: 12px; border: 1px solid #334155; }
+  .hud-item { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .health { color: #f43f5e; } .streak { color: #f59e0b; }
+  .timer-bar-container { width: 100%; height: 8px; background: #0f172a; border-radius: 4px; margin-bottom: 16px; overflow: hidden; display: none; }
+  .timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width 1s linear; }
+
+  /* Game Engine Area */
+  .game-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .btn-back { background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; }
   .game-title { font-weight: 700; font-size: 18px; color: #fff; }
-
-  .game-content { flex: 1; background: rgba(15, 23, 42, 0.6); border-radius: 20px; padding: 24px; border: 1px dashed rgba(148, 163, 184, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 300px; position: relative; }
+  .game-content { flex: 1; background: rgba(15, 23, 42, 0.6); border-radius: 20px; padding: 20px; border: 1px dashed rgba(148, 163, 184, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
   
-  .loader { font-size: 14px; color: #fbbf24; margin: 20px 0; }
-  
-  /* Universal Game Elements */
-  .game-prompt { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #f8fafc; line-height: 1.4; }
-  .game-img { max-width: 100%; max-height: 200px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid #334155; }
-  .highlight-text { font-size: 32px; font-weight: 800; color: #38bdf8; margin: 10px 0 20px 0; display: block; }
-  
-  .game-input { width: 100%; padding: 16px; border-radius: 14px; background: #0f172a; border: 2px solid #334155; color: #fff; text-align: center; font-size: 16px; outline: none; font-weight: 600; margin-bottom: 12px; transition: all 0.3s; }
+  .game-prompt { font-size: 18px; font-weight: 700; margin-bottom: 16px; line-height: 1.4; width: 100%; }
+  .game-img { max-width: 100%; max-height: 220px; border-radius: 12px; margin-bottom: 12px; border: 2px solid #334155; object-fit: contain; }
+  .game-input { width: 100%; padding: 14px; border-radius: 12px; background: #0f172a; border: 2px solid #334155; color: #fff; text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 12px; outline: none; }
   .game-input:focus { border-color: #38bdf8; }
-  .play-btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-weight: 700; width: 100%; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); margin-bottom: 12px; }
-  .play-btn:active { transform: scale(0.98); }
   
-  .result-log { font-size: 14px; font-weight: 600; min-height: 24px; margin-top: 8px; }
+  .btn-row { display: flex; gap: 8px; width: 100%; margin-bottom: 12px; }
+  .play-btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; flex: 1; font-size: 15px; cursor: pointer; }
+  .tool-btn { background: #334155; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; flex: 0.5; }
+  .skip-btn { background: #f59e0b; color: #000; }
+  
+  .result-log { font-size: 14px; font-weight: 600; min-height: 20px; margin-top: 8px; }
   .res-success { color: #10b981; } .res-error { color: #f43f5e; }
 
-  /* Khusus Family 100 Board */
-  .f100-board { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-bottom: 20px; }
-  .f100-box { background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-weight: 700; color: transparent; text-transform: capitalize; transition: all 0.3s; }
+  /* Family 100 Board */
+  .f100-board { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-bottom: 16px; }
+  .f100-box { background: #1e293b; border: 1px solid #334155; padding: 10px; border-radius: 8px; font-weight: 700; color: transparent; transition: all 0.3s; text-align: left; }
   .f100-box.revealed { background: linear-gradient(135deg, #10b981, #059669); color: white; border-color: #10b981; }
-
-  /* Animasi Jawaban Benar */
-  @keyframes successPulse {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); transform: scale(1); }
-    50% { box-shadow: 0 0 20px 10px rgba(16, 185, 129, 0); transform: scale(1.03); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); transform: scale(1); }
-  }
-  .input-success { animation: successPulse 0.5s ease-out; border-color: #10b981 !important; background: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; }
+  .f100-box.hinted { color: #94a3b8; } /* Warna text clue */
+  
+  .input-success { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; }
 </style>
 </head>
 <body>
 
+  <!-- Sidebar Overlay & Menu -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <button class="close-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="side-title">Pengaturan & Sosial</div>
+    
+    <div class="side-section">
+      <h4>Tingkat Kesulitan (Mode)</h4>
+      <label class="mode-label">
+        <input type="radio" name="gameMode" value="easy" onchange="changeMode(this.value)">
+        <div><b>Easy</b><span class="mode-desc">Santai. Tanpa waktu & Bisa Skip.</span></div>
+      </label>
+      <label class="mode-label">
+        <input type="radio" name="gameMode" value="normal" checked onchange="changeMode(this.value)">
+        <div><b>Normal</b><span class="mode-desc">Ada Waktu. Skip Nonaktif.</span></div>
+      </label>
+      <label class="mode-label">
+        <input type="radio" name="gameMode" value="hard" onchange="changeMode(this.value)">
+        <div><b>Hard 🔥</b><span class="mode-desc">Ada Waktu + Nyawa 3. Mati = Balik Home.</span></div>
+      </label>
+    </div>
+
+    <div class="side-section">
+      <h4>Komunitas Kiki</h4>
+      <a href="https://discord.gg/sdyGCnqDy" target="_blank" class="social-btn btn-dc"><i class="fa-brands fa-discord"></i> Join Discord</a>
+      <a href="https://whatsapp.com/channel/0029VbEGpH07oQhg8YPSLm1z" target="_blank" class="social-btn btn-wa"><i class="fa-brands fa-whatsapp"></i> Saluran WA</a>
+    </div>
+  </div>
+
 <div class="app-container">
-  
-  <!-- Menu Utama -->
+  <!-- Top Nav & Menu Screen -->
+  <div class="top-nav" id="topNav">
+    <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars-staggered"></i></button>
+    <div style="width: 24px;"></div>
+  </div>
+
   <div id="menu-screen" class="screen active">
     <div class="header">
       <h1>Arcade Hub</h1>
       <p>Data Source: github.com/Alaricvoneltz</p>
     </div>
-
     <div class="game-grid">
-      <div class="game-card" onclick="openGame('family100', 'Family 100')">
-        <i class="fa-solid fa-users c-family"></i><h3>Family 100</h3>
-      </div>
-      <div class="game-card" onclick="openGame('sambungkata', 'Sambung Kata')">
-        <i class="fa-solid fa-link c-sambung"></i><h3>Sambung Kata</h3>
-      </div>
-      <div class="game-card" onclick="openGame('tebakgambar', 'Tebak Gambar')">
-        <i class="fa-solid fa-image c-gambar"></i><h3>Tebak Gambar</h3>
-      </div>
-      <div class="game-card" onclick="openGame('tebakkata', 'Tebak Kata')">
-        <i class="fa-solid fa-spell-check c-kata"></i><h3>Tebak Kata</h3>
-      </div>
-      <div class="game-card c-abc" onclick="openGame('abc5dasar', 'ABC 5 Dasar')">
-        <i class="fa-solid fa-hand-sparkles c-abc"></i><h3>ABC 5 Dasar</h3>
-      </div>
+      <div class="game-card" onclick="openGame('family100', 'Family 100')"><i class="fa-solid fa-users c-family"></i><h3>Family 100</h3></div>
+      <div class="game-card" onclick="openGame('sambungkata', 'Sambung Kata')"><i class="fa-solid fa-link c-sambung"></i><h3>Sambung Kata</h3></div>
+      <div class="game-card" onclick="openGame('tebakgambar', 'Tebak Gambar')"><i class="fa-solid fa-image c-gambar"></i><h3>Tebak Gambar</h3></div>
+      <div class="game-card c-abc" onclick="openGame('abc5dasar', 'ABC 5 Dasar')"><i class="fa-solid fa-hand-sparkles c-abc"></i><h3>ABC 5 Dasar</h3></div>
     </div>
   </div>
 
-  <!-- Area Permainan -->
+  <!-- Game Player Screen -->
   <div id="game-screen" class="screen">
     <div class="game-header">
       <button class="btn-back" onclick="backToMenu()"><i class="fa-solid fa-chevron-left"></i></button>
       <div class="game-title" id="activeGameTitle">Loading...</div>
       <div style="width: 20px;"></div>
     </div>
+
+    <!-- HUD (Heads Up Display) -->
+    <div class="game-hud" id="gameHud" style="display: none;">
+      <div class="hud-item health" id="hudHealth">❤️❤️❤️</div>
+      <div class="hud-item streak" id="hudStreak">🔥 0</div>
+    </div>
+    <div class="timer-bar-container" id="timerContainer"><div class="timer-bar" id="timerBar"></div></div>
+
     <div class="game-content" id="gameEngine"></div>
   </div>
-
 </div>
 
  <script>
-  // Link Database GitHub Raw Kiki
+  // Link Database
   const DB_URLS = {
     family100: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/Family100Raw",
     sambungkata: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/SambungKataRaw",
     tebakgambar: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/TebakGambarRaw",
-    tebakkata: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/TebakKataRaw",
     abc5dasar: [
       { name: "Benda", url: "https://raw.githubusercontent.com/Alaricvoneltz/ABC-5-dasar/refs/heads/main/Benda.md" },
       { name: "Buah", url: "https://raw.githubusercontent.com/Alaricvoneltz/ABC-5-dasar/refs/heads/main/Buah.md" },
@@ -136,56 +169,154 @@
     ]
   };
 
+  // UI Elements
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
   const menuScreen = document.getElementById('menu-screen');
   const gameScreen = document.getElementById('game-screen');
-  const gameTitle = document.getElementById('activeGameTitle');
+  const topNav = document.getElementById('topNav');
   const engine = document.getElementById('gameEngine');
-
-  // Variabel Global Game
+  
+  // Game States
+  let mode = 'normal'; // easy, normal, hard
+  let health = 3;
+  let streak = 0;
+  let timerInterval = null;
+  
+  // Data States
   let activeGame = "";
   let gameData = null;
   let currentItem = null;
-  let f100Guessed = []; 
+  
+  // Specific Game States
+  let f100Guessed = [];
+  let f100Hints = []; // Simpan progres clue huruf
+  let cluesLeft = 3;
+  let tgHintStr = ""; // Tebak Gambar clue
   let abcActiveLetter = "";
 
+  // ==========================================
+  // PENGATURAN UI & MODE GLOBAL
+  // ==========================================
+  function toggleSidebar() {
+    sidebar.classList.toggle('open');
+    sidebarOverlay.classList.toggle('show');
+  }
+
+  function changeMode(selectedMode) {
+    mode = selectedMode;
+  }
+
   function backToMenu() {
+    clearInterval(timerInterval);
     gameScreen.classList.remove('active');
     menuScreen.classList.add('active');
+    topNav.style.display = 'flex';
     engine.innerHTML = ""; 
   }
 
+  function updateHUD() {
+    const hud = document.getElementById('gameHud');
+    if (mode === 'easy') {
+      hud.style.display = 'flex';
+      document.getElementById('hudHealth').innerText = "Mode Santai 🍃";
+    } else if (mode === 'normal') {
+      hud.style.display = 'flex';
+      document.getElementById('hudHealth').innerText = "Waktu Terbatas ⏱️";
+    } else if (mode === 'hard') {
+      hud.style.display = 'flex';
+      document.getElementById('hudHealth').innerText = "❤️".repeat(health) + "🖤".repeat(3 - health);
+    }
+    document.getElementById('hudStreak').innerText = `🔥 ${streak}`;
+  }
+
+  function startTimer(duration, timeoutCallback) {
+    clearInterval(timerInterval);
+    const container = document.getElementById('timerContainer');
+    const bar = document.getElementById('timerBar');
+    
+    if (mode === 'easy') {
+      container.style.display = 'none';
+      return;
+    }
+    
+    container.style.display = 'block';
+    let timeLeft = duration;
+    bar.style.width = '100%';
+    bar.style.transition = 'none';
+    
+    setTimeout(() => { bar.style.transition = 'width 1s linear'; }, 50);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      let pct = (timeLeft / duration) * 100;
+      bar.style.width = `${pct}%`;
+      
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleTimeout(timeoutCallback);
+      }
+    }, 1000);
+  }
+
+  function handleTimeout(nextFunc) {
+    streak = 0; // Reset streak
+    if (mode === 'hard') {
+      health--;
+      updateHUD();
+      if (health <= 0) {
+        alert("Waktu habis dan Nyawa kosong! GAME OVER 💀");
+        backToMenu();
+        return;
+      }
+    }
+    // Jika masih ada nyawa / mode normal, otomatis ganti soal
+    alert("Waktu Habis! Ganti soal...");
+    if(nextFunc) nextFunc();
+  }
+
+  function checkSkip(nextFunc) {
+    if (mode === 'easy') {
+      streak = 0; // Reset streak kalau skip
+      nextFunc();
+    } else {
+      alert("Tombol Skip hanya tersedia di Mode Easy!");
+    }
+  }
+
+  // ==========================================
+  // INISIALISASI GAME
+  // ==========================================
   async function openGame(gameId, title) {
     activeGame = gameId;
-    gameTitle.innerText = title;
+    document.getElementById('activeGameTitle').innerText = title;
     menuScreen.classList.remove('active');
     gameScreen.classList.add('active');
+    topNav.style.display = 'none'; // Sembunyikan navbar utama saat main
     
-    engine.innerHTML = `<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Menarik data dari GitHub Kiki...</div>`;
+    health = 3;
+    streak = 0;
+    updateHUD();
+    
+    engine.innerHTML = `<div style="color:#fbbf24;"><i class="fa-solid fa-spinner fa-spin"></i> Menarik data dari GitHub...</div>`;
     
     try {
       if (gameId === 'abc5dasar') {
-        // Logika spesial ABC 5 Dasar
         const randomCat = DB_URLS.abc5dasar[Math.floor(Math.random() * DB_URLS.abc5dasar.length)];
         const res = await fetch(randomCat.url);
         const text = await res.text();
         gameData = text.split('\n').map(l => l.replace(/^[\-\*\#]\s*/, '').trim().toLowerCase()).filter(l => l);
-        
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        abcActiveLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-        
-        renderABC(randomCat.name, abcActiveLetter);
+        startABC(randomCat.name);
       } else {
-        // Logika 4 Game Utama (JSON)
         const res = await fetch(DB_URLS[gameId]);
         gameData = await res.json();
         
-        if (gameId === 'family100') startFamily100();
-        if (gameId === 'tebakkata') startTebakKata();
+        if (gameId === 'family100') { cluesLeft = 3; startFamily100(); }
         if (gameId === 'tebakgambar') startTebakGambar();
         if (gameId === 'sambungkata') startSambungKata();
       }
     } catch (err) {
-      engine.innerHTML = `<div class="res-error"><i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat data dari GitHub. Coba lagi nanti.</div>`;
+      engine.innerHTML = `<div class="res-error">Gagal memuat data dari GitHub. Cek koneksi.</div>`;
     }
   }
 
@@ -193,11 +324,14 @@
     const input = document.getElementById(inputId);
     input.classList.add('input-success');
     input.disabled = true;
+    streak++; // Tambah streak
+    updateHUD();
+    clearInterval(timerInterval);
     setTimeout(() => {
       input.classList.remove('input-success');
       input.disabled = false;
       if(nextFunc) nextFunc();
-    }, 1500);
+    }, 1200);
   }
 
   // ==========================================
@@ -206,10 +340,23 @@
   function startFamily100() {
     currentItem = gameData[Math.floor(Math.random() * gameData.length)];
     f100Guessed = [];
-    
-    let boardHTML = `<div class="f100-board" id="f100Board">`;
-    currentItem.jawaban.forEach((jawaban, idx) => {
-      boardHTML += `<div class="f100-box" id="f100-ans-${idx}">1. ....................</div>`;
+    f100Hints = new Array(currentItem.jawaban.length).fill("");
+    renderF100Board();
+    startTimer(30, startFamily100);
+  }
+
+  function renderF100Board() {
+    let boardHTML = `<div class="f100-board">`;
+    currentItem.jawaban.forEach((ans, idx) => {
+      if (f100Guessed.includes(idx)) {
+        boardHTML += `<div class="f100-box revealed">${ans.toUpperCase()}</div>`;
+      } else if (f100Hints[idx].length > 0) {
+        // Tampilkan huruf clue + bintang
+        let hintDisplay = f100Hints[idx].toUpperCase() + "*".repeat(ans.length - f100Hints[idx].length);
+        boardHTML += `<div class="f100-box hinted" style="color:#94a3b8;">${hintDisplay}</div>`;
+      } else {
+        boardHTML += `<div class="f100-box">................</div>`;
+      }
     });
     boardHTML += `</div>`;
 
@@ -217,9 +364,37 @@
       <div class="game-prompt">${currentItem.soal}</div>
       ${boardHTML}
       <input type="text" id="f100Input" class="game-input" placeholder="Tebak jawaban..." autocomplete="off">
-      <button class="play-btn" onclick="checkF100()">Cek Jawaban</button>
+      
+      <div class="btn-row">
+        <button class="play-btn" onclick="checkF100()">Cek Jawaban</button>
+        <button class="tool-btn" onclick="useF100Clue()"><i class="fa-solid fa-lightbulb"></i> Clue (${cluesLeft})</button>
+        ${mode === 'easy' ? `<button class="tool-btn skip-btn" onclick="checkSkip(startFamily100)"><i class="fa-solid fa-forward"></i> Skip</button>` : ''}
+      </div>
       <div id="gameLog" class="result-log"></div>
     `;
+    document.getElementById('f100Input').focus();
+  }
+
+  function useF100Clue() {
+    if (cluesLeft <= 0) return alert("Jatah Clue kamu di match ini sudah habis!");
+    
+    // Cari jawaban yang belum tertebak
+    let unrevealed = [];
+    currentItem.jawaban.forEach((ans, idx) => {
+      if (!f100Guessed.includes(idx) && f100Hints[idx].length < ans.length) {
+        unrevealed.push(idx);
+      }
+    });
+    
+    if (unrevealed.length === 0) return;
+    
+    // Acak satu jawaban untuk di-spill 1 hurufnya
+    let rIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+    let targetWord = currentItem.jawaban[rIdx];
+    f100Hints[rIdx] = targetWord.substring(0, f100Hints[rIdx].length + 1);
+    
+    cluesLeft--;
+    renderF100Board(); // Update UI
   }
 
   function checkF100() {
@@ -230,68 +405,77 @@
     const idx = currentItem.jawaban.findIndex(j => j.toLowerCase() === ans);
     if (idx !== -1 && !f100Guessed.includes(idx)) {
       f100Guessed.push(idx);
-      
-      const box = document.getElementById(`f100-ans-${idx}`);
-      box.innerText = currentItem.jawaban[idx];
-      box.classList.add('revealed');
+      streak++;
+      updateHUD();
       
       log.className = "result-log res-success";
       log.innerText = "Benar! Ada di papan!";
-      document.getElementById('f100Input').value = "";
+      renderF100Board(); // Re-render untuk munculkan jawaban
       
       if (f100Guessed.length === currentItem.jawaban.length) {
-        log.innerHTML = `🎉 <b>PERFECT!</b> Semua jawaban tertebak! Mengacak soal baru...`;
-        triggerSuccess('f100Input', startFamily100);
+        log.innerHTML = `🎉 <b>PERFECT!</b> Semua tertebak! Lanjut soal berikutnya...`;
+        clearInterval(timerInterval);
+        setTimeout(startFamily100, 1500);
       }
     } else if (f100Guessed.includes(idx)) {
       log.className = "result-log res-error";
-      log.innerText = "Jawaban itu sudah tertebak!";
+      log.innerText = "Jawaban itu sudah terbuka!";
     } else {
       log.className = "result-log res-error";
-      log.innerText = "TET TOT! Jawaban tidak ada di papan.";
+      streak = 0; updateHUD(); // Reset streak jika salah
+      log.innerText = "TET TOT! Salah.";
     }
   }
 
   // ==========================================
-  // 2. ENGINE TEBAK KATA
-  // ==========================================
-  function startTebakKata() {
-    currentItem = gameData[Math.floor(Math.random() * gameData.length)];
-    engine.innerHTML = `
-      <div class="game-prompt">🤔 ${currentItem.soal}</div>
-      <input type="text" id="tkInput" class="game-input" placeholder="Tebak di sini..." autocomplete="off">
-      <button class="play-btn" onclick="checkTebakKata()">Jawab</button>
-      <div id="gameLog" class="result-log"></div>
-    `;
-  }
-
-  function checkTebakKata() {
-    const ans = document.getElementById('tkInput').value.trim().toLowerCase();
-    const log = document.getElementById('gameLog');
-    if (ans === currentItem.jawaban.toLowerCase()) {
-      log.className = "result-log res-success";
-      log.innerText = `Benar! Jawabannya: ${currentItem.jawaban}`;
-      triggerSuccess('tkInput', startTebakKata);
-    } else {
-      log.className = "result-log res-error";
-      log.innerText = "Salah! Coba tebak lagi.";
-    }
-  }
-
-  // ==========================================
-  // 3. ENGINE TEBAK GAMBAR
+  // 2. ENGINE TEBAK GAMBAR
   // ==========================================
   function startTebakGambar() {
     currentItem = gameData[Math.floor(Math.random() * gameData.length)];
-    engine.innerHTML = `
-      <img src="${currentItem.img}" class="game-img" alt="Tebak Gambar">
-      <input type="text" id="tgInput" class="game-input" placeholder="Gambar apa ini?" autocomplete="off">
-      <button class="play-btn" onclick="checkTebakGambar()">Jawab</button>
-      <div id="gameLog" class="result-log"></div>
-    `;
+    tgHintStr = "";
+    cluesLeft = 3;
+    renderTG();
+    startTimer(20, startTebakGambar);
   }
 
-  function checkTebakGambar() {
+  function renderTG() {
+    let hintDisplay = tgHintStr ? `<div style="color:#fbbf24; margin-bottom:8px; font-weight:bold; letter-spacing:3px;">Clue: ${tgHintStr.toUpperCase()}...</div>` : "";
+    
+    engine.innerHTML = `
+      <img src="${currentItem.img}" class="game-img" id="tgImage" alt="Tebak Gambar" onerror="this.src='https://via.placeholder.com/300x200?text=Gambar+Gagal+Dimuat'">
+      ${hintDisplay}
+      <input type="text" id="tgInput" class="game-input" placeholder="Gambar apa ini?" autocomplete="off">
+      
+      <div class="btn-row">
+        <button class="play-btn" onclick="checkTG()">Jawab</button>
+      </div>
+      <div class="btn-row">
+        <button class="tool-btn" onclick="useTGClue()"><i class="fa-solid fa-lightbulb"></i> Clue (${cluesLeft})</button>
+        <button class="tool-btn" onclick="reloadTGImg()"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+        ${mode === 'easy' ? `<button class="tool-btn skip-btn" onclick="checkSkip(startTebakGambar)"><i class="fa-solid fa-forward"></i> Skip</button>` : ''}
+      </div>
+      <div id="gameLog" class="result-log"></div>
+    `;
+    document.getElementById('tgInput').focus();
+  }
+
+  function reloadTGImg() {
+    const img = document.getElementById('tgImage');
+    // Tambah parameter waktu untuk paksa refresh dari server
+    img.src = currentItem.img + "?t=" + new Date().getTime();
+  }
+
+  function useTGClue() {
+    if (cluesLeft <= 0) return alert("Clue habis!");
+    let target = currentItem.soal;
+    if (tgHintStr.length < target.length) {
+      tgHintStr = target.substring(0, tgHintStr.length + 1);
+      cluesLeft--;
+      renderTG();
+    }
+  }
+
+  function checkTG() {
     const ans = document.getElementById('tgInput').value.trim().toLowerCase();
     const log = document.getElementById('gameLog');
     if (ans === currentItem.soal.toLowerCase()) {
@@ -299,71 +483,87 @@
       log.innerText = "Benar sekali!";
       triggerSuccess('tgInput', startTebakGambar);
     } else {
+      streak = 0; updateHUD();
       log.className = "result-log res-error";
-      log.innerText = "Salah! Perhatikan gambarnya baik-baik.";
+      log.innerText = "Salah! Coba perhatikan lagi.";
     }
   }
 
   // ==========================================
-  // 4. ENGINE SAMBUNG KATA
+  // 3. ENGINE SAMBUNG KATA
   // ==========================================
   function startSambungKata() {
     currentItem = gameData[Math.floor(Math.random() * gameData.length)];
-    engine.innerHTML = `
-      <p style="color:#94a3b8; font-size:14px;">Lanjutkan kata ini. Harus ada di database!</p>
-      <span class="highlight-text">${currentItem.toUpperCase()}</span>
-      <p style="color:#f43f5e; font-size:14px; margin-bottom:12px;">Mulai dengan huruf: <b>${currentItem.slice(-1).toUpperCase()}</b></p>
-      
-      <input type="text" id="skInput" class="game-input" placeholder="Ketik kata selanjutnya..." autocomplete="off">
-      <button class="play-btn" onclick="checkSambungKata()">Sambung!</button>
-      <div id="gameLog" class="result-log"></div>
-    `;
+    renderSK();
+    startTimer(15, startSambungKata);
   }
 
-  function checkSambungKata() {
+  function renderSK() {
+    engine.innerHTML = `
+      <p style="color:#94a3b8; font-size:13px;">Lanjutkan kata ini!</p>
+      <div style="font-size: 32px; font-weight: 800; color: #38bdf8; margin: 10px 0;">${currentItem.toUpperCase()}</div>
+      <p style="color:#f43f5e; font-size:14px; margin-bottom:16px;">Mulai dengan huruf: <b>${currentItem.slice(-1).toUpperCase()}</b></p>
+      
+      <input type="text" id="skInput" class="game-input" placeholder="Ketik kata selanjutnya..." autocomplete="off">
+      
+      <div class="btn-row">
+        <button class="play-btn" onclick="checkSK()">Sambung!</button>
+        ${mode === 'easy' ? `<button class="tool-btn skip-btn" onclick="checkSkip(startSambungKata)"><i class="fa-solid fa-forward"></i> Skip</button>` : ''}
+      </div>
+      <div id="gameLog" class="result-log"></div>
+    `;
+    document.getElementById('skInput').focus();
+  }
+
+  function checkSK() {
     const ans = document.getElementById('skInput').value.trim().toLowerCase();
     const lastChar = currentItem.slice(-1).toLowerCase();
     const log = document.getElementById('gameLog');
     
     if (!ans.startsWith(lastChar)) {
       log.className = "result-log res-error";
-      log.innerText = `Kata harus berawalan huruf "${lastChar.toUpperCase()}"!`;
+      log.innerText = `Harus berawalan huruf "${lastChar.toUpperCase()}"!`;
       return;
     }
-    
     if (gameData.includes(ans)) {
       log.className = "result-log res-success";
-      log.innerText = `Mantap! "${ans}" ada di database.`;
-      // Update kata saat ini menjadi jawaban user
-      currentItem = ans;
-      triggerSuccess('skInput', () => {
-        // Render ulang tampilan dengan kata baru
-        document.querySelector('.highlight-text').innerText = currentItem.toUpperCase();
-        document.querySelector('b').innerText = currentItem.slice(-1).toUpperCase();
-        document.getElementById('skInput').value = "";
-        log.innerText = "";
-      });
+      log.innerText = `Mantap! Lanjut...`;
+      currentItem = ans; // Lanjut berantai
+      triggerSuccess('skInput', () => { renderSK(); startTimer(15, startSambungKata); });
     } else {
+      streak = 0; updateHUD();
       log.className = "result-log res-error";
-      log.innerText = `Kata "${ans}" tidak ditemukan di database GitHub.`;
+      log.innerText = `Kata tidak ada di database GitHub.`;
     }
   }
 
   // ==========================================
-  // 5. ENGINE ABC 5 DASAR
+  // 4. ENGINE ABC 5 DASAR
   // ==========================================
-  function renderABC(categoryName, letter) {
+  function startABC(categoryName) {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    abcActiveLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+    renderABCUI(categoryName);
+    startTimer(15, () => openGame('abc5dasar', 'ABC 5 Dasar')); // Timeout otomatis ganti soal/huruf
+  }
+
+  function renderABCUI(catName) {
     engine.innerHTML = `
-      <div style="background:rgba(30, 41, 59, 0.8); padding:10px 16px; border-radius:12px; margin-bottom:12px; border: 1px solid #334155;">
-        <span style="font-size:12px; color:#94a3b8;">Kategori Terpilih:</span><br>
-        <span style="font-size:16px; color:#f59e0b; font-weight:800;">${categoryName.toUpperCase()}</span>
+      <div style="background:rgba(30, 41, 59, 0.8); padding:10px 16px; border-radius:12px; margin-bottom:16px; border: 1px solid #334155;">
+        <span style="font-size:12px; color:#94a3b8;">Kategori:</span><br>
+        <span style="font-size:16px; color:#f59e0b; font-weight:800;">${catName.toUpperCase()}</span>
       </div>
       
-      <div class="game-prompt">Berawalan Huruf: <span class="highlight-text" style="margin:0;">${letter}</span></div>
+      <div class="game-prompt">Berawalan Huruf: <span style="color:#38bdf8; font-size:32px;">${abcActiveLetter}</span></div>
       <input type="text" id="abcInput" class="game-input" placeholder="Sebutkan..." autocomplete="off">
-      <button class="play-btn" onclick="checkABC()">Jawab!</button>
+      
+      <div class="btn-row">
+        <button class="play-btn" onclick="checkABC()">Jawab!</button>
+        ${mode === 'easy' ? `<button class="tool-btn skip-btn" onclick="checkSkip(() => openGame('abc5dasar', 'ABC 5 Dasar'))"><i class="fa-solid fa-forward"></i> Skip</button>` : ''}
+      </div>
       <div id="gameLog" class="result-log"></div>
     `;
+    document.getElementById('abcInput').focus();
   }
 
   function checkABC() {
@@ -372,17 +572,18 @@
     
     if (!ans.startsWith(abcActiveLetter.toLowerCase())) {
       log.className = "result-log res-error";
-      log.innerText = `Jawaban harus berawalan huruf ${abcActiveLetter}!`;
+      log.innerText = `Harus berawalan huruf ${abcActiveLetter}!`;
       return;
     }
 
     if (gameData.includes(ans)) {
       log.className = "result-log res-success";
-      log.innerText = `Betul! "${ans}" ada di database. Mengacak lagi...`;
+      log.innerText = `Betul! Acak huruf baru...`;
       triggerSuccess('abcInput', () => openGame('abc5dasar', 'ABC 5 Dasar'));
     } else {
+      streak = 0; updateHUD();
       log.className = "result-log res-error";
-      log.innerText = `Salah! "${ans}" tidak ada di database.`;
+      log.innerText = `Salah! Kata tidak ada di database.`;
     }
   }
 </script>
