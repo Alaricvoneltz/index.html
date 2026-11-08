@@ -45,7 +45,7 @@
   .c-sambung { color: #10b981; }
   .c-gambar { color: #f59e0b; }
   .c-kata { color: #8b5cf6; }
-  .c-abc { color: #06b6d4; grid-column: span 2; } /* Lebar penuh */
+  .c-abc { color: #06b6d4; grid-column: span 2; }
 
   /* Game Interface */
   .game-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 16px; background: rgba(30, 41, 59, 0.8); border-radius: 16px; }
@@ -55,19 +55,29 @@
   /* Game Content Area */
   .game-content { flex: 1; background: rgba(15, 23, 42, 0.6); border-radius: 20px; padding: 24px; border: 1px dashed rgba(148, 163, 184, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 300px; }
   
-  .category-select { width: 100%; padding: 14px; border-radius: 12px; background: #1e293b; color: #fff; border: 1px solid #475569; font-family: inherit; font-size: 15px; margin-bottom: 16px; outline: none; }
-  
   .play-btn { background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-weight: 700; width: 100%; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); margin-bottom: 12px; }
-  
   .loader { display: none; font-size: 14px; color: #fbbf24; margin-top: 10px; }
   
   /* Input & Log UI */
   .game-prompt { font-size: 20px; font-weight: 800; margin-bottom: 16px; color: #f43f5e; }
-  .game-input { width: 100%; padding: 14px; border-radius: 12px; background: #0f172a; border: 2px solid #334155; color: #fff; text-align: center; font-size: 16px; outline: none; font-weight: 600; margin-bottom: 12px; }
+  .game-input { width: 100%; padding: 14px; border-radius: 12px; background: #0f172a; border: 2px solid #334155; color: #fff; text-align: center; font-size: 16px; outline: none; font-weight: 600; margin-bottom: 12px; transition: all 0.3s; }
   .game-input:focus { border-color: #38bdf8; }
+  
   .result-log { font-size: 14px; font-weight: 600; min-height: 20px; }
   .res-success { color: #10b981; }
   .res-error { color: #f43f5e; }
+
+  /* Animasi Jawaban Benar */
+  @keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); transform: scale(1); }
+    50% { box-shadow: 0 0 25px 15px rgba(16, 185, 129, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); transform: scale(1); }
+  }
+  .input-success { 
+    animation: successPulse 0.5s ease-out; 
+    border-color: #10b981 !important; 
+    background: rgba(16, 185, 129, 0.1) !important;
+  }
 </style>
 </head>
 <body>
@@ -110,18 +120,18 @@
     <div class="game-header">
       <button class="btn-back" onclick="backToMenu()"><i class="fa-solid fa-chevron-left"></i></button>
       <div class="game-title" id="activeGameTitle">Game Title</div>
-      <div style="width: 20px;"></div> <!-- Spacer -->
+      <div style="width: 20px;"></div>
     </div>
 
     <div class="game-content" id="gameEngine">
-      <!-- Konten game akan dirender otomatis oleh JS di sini -->
+      <!-- Konten game akan dirender oleh JS -->
     </div>
   </div>
 
 </div>
 
  <script>
-  // Database URL dari GitHub Kiki (Sudah disesuaikan ke raw format)
+  // Database URL dari GitHub Kiki
   const DB = {
     family100: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/Family100Raw",
     sambungkata: "https://raw.githubusercontent.com/Alaricvoneltz/Game/refs/heads/Family100Raw/SambungKataRaw",
@@ -151,7 +161,7 @@
   function backToMenu() {
     gameScreen.classList.remove('active');
     menuScreen.classList.add('active');
-    engine.innerHTML = ""; // Bersihkan mesin
+    engine.innerHTML = ""; 
   }
 
   function openGame(gameId, title) {
@@ -172,57 +182,58 @@
   // ============================================
   function renderABCUI() {
     engine.innerHTML = `
-      <p style="color:#94a3b8; margin-bottom:12px; font-size:13px;">Pilih kategori dari database GitHub:</p>
-      <select id="abcCategory" class="category-select">
-        <option value="Benda">Benda</option>
-        <option value="Buah">Buah</option>
-        <option value="Hewan">Hewan</option>
-        <option value="Makanan">Makanan</option>
-        <option value="Negara">Negara</option>
-        <option value="Pekerjaan">Pekerjaan</option>
-      </select>
-      <button class="play-btn" onclick="startABC()"><i class="fa-solid fa-play"></i> Mulai Main</button>
+      <p style="color:#94a3b8; margin-bottom:12px; font-size:13px;">Kategori dan Huruf akan diacak otomatis oleh sistem!</p>
+      <button class="play-btn" onclick="startABC()"><i class="fa-solid fa-dice"></i> Acak & Mulai</button>
       <div id="loader" class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan ke GitHub...</div>
+      
       <div id="abcPlayArea" style="width:100%; display:none; margin-top:20px;">
-        <div class="game-prompt">Huruf: <span id="abcLetter" style="font-size:36px; color:#38bdf8;">A</span></div>
-        <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;" id="abcDesc"></p>
-        <input type="text" id="abcInput" class="game-input" placeholder="Ketik jawabanmu..." autocomplete="off">
+        <div style="background:rgba(30, 41, 59, 0.8); padding:12px; border-radius:12px; margin-bottom:16px; border: 1px solid #334155;">
+          <span style="font-size:13px; color:#94a3b8; display:block;">Kategori Terpilih:</span>
+          <span id="abcCategoryDisplay" style="font-size:18px; color:#f59e0b; font-weight:800;"></span>
+        </div>
+        
+        <div class="game-prompt">Huruf: <span id="abcLetter" style="font-size:42px; color:#38bdf8;"></span></div>
+        <input type="text" id="abcInput" class="game-input" placeholder="Ketik jawabanmu di sini..." autocomplete="off">
         <button class="play-btn" onclick="checkABCAnswer()">Jawab!</button>
-        <div id="abcLog" class="result-log"></div>
+        <div id="abcLog" class="result-log" style="margin-top: 12px; font-size:15px;"></div>
       </div>
     `;
   }
 
   async function startABC() {
-    const category = document.getElementById('abcCategory').value;
-    const url = DB.abc5dasar[category];
+    const categories = Object.keys(DB.abc5dasar);
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    const url = DB.abc5dasar[randomCategory];
+    
     const loader = document.getElementById('loader');
     const playArea = document.getElementById('abcPlayArea');
+    const inputField = document.getElementById('abcInput');
     
     loader.style.display = 'block';
     playArea.style.display = 'none';
+    if(inputField) inputField.classList.remove('input-success'); 
 
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Gagal mengambil data");
       const textData = await response.text();
       
-      // Bersihkan format Markdown (hapus -, *, spasi) dan jadikan array huruf kecil
+      // Bersihkan teks Markdown
       loadedData = textData.split('\n')
         .map(line => line.replace(/^[\-\*\#]\s*/, '').trim().toLowerCase())
         .filter(line => line.length > 0);
 
-      // Generate huruf acak dari A-Z
       const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       activeLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
       
       document.getElementById('abcLetter').innerText = activeLetter;
-      document.getElementById('abcDesc').innerText = `Sebutkan nama ${category} yang berawalan huruf ${activeLetter}`;
+      document.getElementById('abcCategoryDisplay').innerText = randomCategory.toUpperCase();
       document.getElementById('abcInput').value = "";
       document.getElementById('abcLog').innerText = "";
       
       loader.style.display = 'none';
       playArea.style.display = 'block';
+      document.getElementById('abcInput').focus();
 
     } catch (err) {
       loader.innerHTML = `<span class="res-error">Gagal memuat database dari GitHub.</span>`;
@@ -230,30 +241,40 @@
   }
 
   function checkABCAnswer() {
-    const answer = document.getElementById('abcInput').value.trim().toLowerCase();
+    const inputField = document.getElementById('abcInput');
+    const answer = inputField.value.trim().toLowerCase();
     const log = document.getElementById('abcLog');
     
     if (!answer) return;
 
     if (!answer.startsWith(activeLetter.toLowerCase())) {
       log.className = "result-log res-error";
-      log.innerText = `Jawaban harus berawalan huruf ${activeLetter}!`;
+      log.innerText = `Hei! Jawaban harus berawalan huruf ${activeLetter}!`;
+      inputField.classList.remove('input-success');
       return;
     }
 
     if (loadedData.includes(answer)) {
+      inputField.classList.add('input-success');
       log.className = "result-log res-success";
-      log.innerHTML = `<i class="fa-solid fa-check-circle"></i> Betul! "${answer}" ada di database.`;
-      // Otomatis ganti huruf setelah 2 detik
-      setTimeout(startABC, 2000);
+      log.innerHTML = `<i class="fa-solid fa-check-circle"></i> KEREN! "${answer}" benar! Mengacak selanjutnya...`;
+      
+      inputField.disabled = true;
+      
+      setTimeout(() => {
+        inputField.disabled = false;
+        startABC();
+      }, 1500);
+      
     } else {
       log.className = "result-log res-error";
-      log.innerHTML = `<i class="fa-solid fa-xmark-circle"></i> Salah! "${answer}" tidak ditemukan di database GitHub.`;
+      log.innerHTML = `<i class="fa-solid fa-xmark-circle"></i> Salah! "${answer}" tidak ada di database.`;
+      inputField.classList.remove('input-success');
     }
   }
 
   // ============================================
-  // MESIN GAME: TRIVIA GENERIC (Family 100, Tebak Kata, dll)
+  // MESIN GAME: TRIVIA GENERIC
   // ============================================
   function renderGenericGameUI(gameId) {
     engine.innerHTML = `
@@ -263,7 +284,6 @@
       <button class="play-btn" onclick="fetchGenericData('${gameId}')"><i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data Game</button>
       <div id="loader" class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan ke GitHub...</div>
       
-      <!-- Area Render Data -->
       <div id="genericDataBox" style="margin-top:20px; width:100%; text-align:left; background:#0f172a; padding:12px; border-radius:12px; font-family:monospace; font-size:12px; color:#10b981; display:none; max-height:200px; overflow-y:auto; border:1px solid #334155;">
       </div>
     `;
@@ -284,7 +304,7 @@
       
       loader.style.display = 'none';
       dataBox.style.display = 'block';
-      dataBox.innerText = textData; // Menampilkan mentahan data JSON/Text dari repo
+      dataBox.innerText = textData;
 
     } catch (err) {
       loader.innerHTML = `<span class="res-error">Gagal membaca URL GitHub Raw.</span>`;
